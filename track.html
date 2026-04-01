@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Order - Jannat Baking Tools</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <meta name="description" content="Track your Jannat Baking Tools order status using your phone number.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: { DEFAULT: '#E85A4F', dark: '#C94A40', light: '#F5A5A0', subtle: '#FEF2F1' },
+                        secondary: { DEFAULT: '#D4A574', dark: '#B88B5E', light: '#E8D4BC' },
+                        accent: { DEFAULT: '#4A90A4', light: '#E8F4F7' },
+                        surface: '#FFFFFF',
+                        background: '#FFFBF7',
+                        'bg-alt': '#FDF8F3',
+                        border: '#F0E6DC',
+                        text: { DEFAULT: '#2D2420', secondary: '#6B5B52', muted: '#A89B93' },
+                        success: { DEFAULT: '#22C55E', light: '#DCFCE7' },
+                        warning: { DEFAULT: '#F59E0B', light: '#FEF3C7' },
+                        error: { DEFAULT: '#EF4444', light: '#FEE2E2' }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        serif: ['Playfair Display', 'Georgia', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-background text-text font-sans min-h-screen bg-pattern">
+    
+    <div class="floating-shape shape-1"></div>
+    <div class="floating-shape shape-2"></div>
+    
+    <!-- Navbar -->
+    <nav class="sticky top-0 z-50 glass border-b border-border">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16 md:h-20">
+                <a href="index.html" class="flex flex-col group">
+                    <h1 class="font-serif text-xl md:text-2xl font-bold text-text leading-tight">
+                        <span class="text-primary italic">Jannat</span> Baking
+                    </h1>
+                    <span class="text-[10px] md:text-xs text-text-muted tracking-[0.2em] uppercase font-semibold mt-0.5 group-hover:text-primary transition-colors">
+                        Tools & Home Decor
+                    </span>
+                </a>
+                
+                <div class="flex items-center gap-4">
+                    <a href="index.html" class="flex items-center gap-2 text-sm font-medium text-text-secondary hover:text-primary transition-colors px-3 py-2 rounded-lg hover:bg-primary-subtle">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                        </svg>
+                        <span class="hidden md:inline">Back to Shop</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <main class="max-w-2xl mx-auto px-4 py-12 md:py-20">
+        <!-- Hero Section -->
+        <div class="text-center mb-10">
+            <div class="inline-flex items-center gap-2 px-4 py-2 bg-primary-subtle rounded-full mb-6 animate-fade-in">
+                <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+                </svg>
+                <span class="text-xs font-semibold text-primary-dark uppercase tracking-wider">Order Tracking</span>
+            </div>
+            
+            <h2 class="font-serif text-3xl md:text-5xl font-bold mb-4 animate-fade-in stagger-1">
+                Track Your <span class="italic text-primary">Order</span>
+            </h2>
+            <p class="text-text-secondary max-w-md mx-auto animate-fade-in stagger-2">Enter the phone number you used during checkout to see your order status.</p>
+        </div>
+        
+        <!-- Search Box -->
+        <div class="bg-surface rounded-2xl border border-border p-6 md:p-8 mb-8 shadow-soft animate-fade-in stagger-3">
+            <div class="flex flex-col sm:flex-row gap-4">
+                <div class="flex-1 relative group">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <svg class="w-5 h-5 text-text-muted group-focus-within:text-primary transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                        </svg>
+                    </div>
+                    <input 
+                        type="tel" 
+                        id="track-phone" 
+                        placeholder="Enter your phone number" 
+                        class="w-full pl-12 pr-4 py-4 border-2 border-border rounded-xl text-text placeholder-text-muted focus:border-primary focus:ring-4 focus:ring-primary-subtle transition-all outline-none"
+                        onkeypress="if(event.key==='Enter') trackOrder()"
+                    >
+                </div>
+                <button onclick="trackOrder()" class="px-8 py-4 bg-gradient-to-r from-primary to-primary-dark text-white font-bold rounded-xl shadow-glow hover:shadow-lg hover:scale-[1.02] transition-all duration-300 flex items-center justify-center gap-2 min-w-[140px]">
+                    <span id="btn-text">Search</span>
+                    <div id="btn-spinner" class="hidden w-5 h-5 border-2 border-white border-t-transparent rounded-full spinner"></div>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Results -->
+        <div id="results-container">
+            <div class="text-center py-12 text-text-muted animate-fade-in">
+                <div class="w-20 h-20 mx-auto mb-4 bg-bg-alt rounded-full flex items-center justify-center">
+                    <svg class="w-10 h-10 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                </div>
+                <p class="text-lg font-serif font-semibold text-text mb-2">Ready to track</p>
+                <p class="text-sm">Enter your phone number above to find your orders</p>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Footer -->
+    <footer class="border-t border-border py-8 px-4 mt-12">
+        <div class="max-w-7xl mx-auto text-center">
+            <p class="text-sm text-text-muted">&copy; 2026 Jannat Baking Tools. All rights reserved.</p>
+        </div>
+    </footer>
+    
+    <div id="toast-container" class="fixed bottom-6 right-6 z-[200] flex flex-col gap-3"></div>
+    
+    <script type="module" src="js/track.js"></script>
+</body>
+</html>

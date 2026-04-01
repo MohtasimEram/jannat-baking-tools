@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart - Jannat Baking</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: { DEFAULT: '#E85A4F', dark: '#C94A40', light: '#F5A5A0', subtle: '#FEF2F1' },
+                        secondary: { DEFAULT: '#D4A574', dark: '#B88B5E', light: '#E8D4BC' },
+                        accent: { DEFAULT: '#4A90A4', light: '#E8F4F7' },
+                        surface: '#FFFFFF',
+                        background: '#FFFBF7',
+                        'bg-alt': '#FDF8F3',
+                        border: '#F0E6DC',
+                        text: { DEFAULT: '#2D2420', secondary: '#6B5B52', muted: '#A89B93' },
+                        success: { DEFAULT: '#22C55E', light: '#DCFCE7' },
+                        warning: { DEFAULT: '#F59E0B', light: '#FEF3C7' },
+                        error: { DEFAULT: '#EF4444', light: '#FEE2E2' }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        serif: ['Playfair Display', 'Georgia', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .bg-pattern {
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(232, 90, 79, 0.06) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(212, 165, 116, 0.08) 0%, transparent 50%);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #E85A4F 0%, #C94A40 100%);
+            transition: all 0.2s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(232, 90, 79, 0.4);
+        }
+        
+        .cart-item {
+            animation: itemEnter 0.3s ease-out;
+        }
+        
+        @keyframes itemEnter {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        .qty-btn {
+            transition: all 0.2s ease;
+        }
+        
+        .qty-btn:hover {
+            background: #E85A4F;
+            color: white;
+            border-color: #E85A4F;
+        }
+    </style>
+</head>
+<body class="bg-background text-text font-sans min-h-screen bg-pattern">
+    
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 glass border-b border-border">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16 md:h-20">
+                <a href="index.html" class="flex flex-col group">
+                    <h1 class="font-serif text-xl md:text-2xl font-bold text-text leading-tight">
+                        <span class="text-primary italic">Jannat</span> Baking
+                    </h1>
+                    <span class="text-[10px] md:text-xs text-text-muted tracking-[0.2em] uppercase font-semibold mt-0.5">
+                        Tools & Home Decor
+                    </span>
+                </a>
+                
+                <a href="index.html" class="flex items-center gap-2 text-sm font-medium text-text-secondary hover:text-primary transition-colors group">
+                    <svg class="w-5 h-5 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                    </svg>
+                    <span class="hidden sm:inline">Continue Shopping</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <main class="px-4 py-8 md:py-12">
+        <div class="max-w-6xl mx-auto">
+            
+            <h2 class="font-serif text-3xl md:text-4xl font-bold text-text mb-8">
+                Shopping <span class="text-primary italic">Cart</span>
+            </h2>
+            
+            <div class="grid lg:grid-cols-3 gap-8">
+                <!-- Cart Items -->
+                <div class="lg:col-span-2">
+                    <div id="cart-items" class="space-y-4">
+                        <!-- Empty state -->
+                        <div class="bg-surface rounded-2xl border border-border p-12 text-center">
+                            <div class="w-24 h-24 mx-auto mb-6 bg-bg-alt rounded-full flex items-center justify-center">
+                                <svg class="w-12 h-12 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                                </svg>
+                            </div>
+                            <h3 class="font-serif text-xl font-bold text-text mb-2">Your cart is empty</h3>
+                            <p class="text-text-muted mb-6">Looks like you haven't added anything yet.</p>
+                            <a href="index.html" class="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white font-semibold rounded-xl hover:bg-primary-dark transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                                </svg>
+                                Start Shopping
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Order Summary -->
+                <div class="lg:col-span-1">
+                    <div class="bg-surface rounded-2xl border border-border p-6 sticky top-24">
+                        <h3 class="font-serif text-xl font-bold text-text mb-6">Order Summary</h3>
+                        
+                        <div class="space-y-3 mb-6">
+                            <div class="flex justify-between text-text-secondary">
+                                <span>Subtotal</span>
+                                <span id="subtotal" class="font-medium text-text">৳ 0</span>
+                            </div>
+                            <div class="flex justify-between text-text-secondary">
+                                <span>Shipping</span>
+                                <span class="text-success font-medium">Free</span>
+                            </div>
+                            <div class="flex justify-between text-text-secondary">
+                                <span>Tax</span>
+                                <span class="font-medium text-text">৳ 0</span>
+                            </div>
+                        </div>
+                        
+                        <div class="border-t border-border pt-4 mb-6">
+                            <div class="flex justify-between items-center">
+                                <span class="font-semibold text-text">Total</span>
+                                <span id="total" class="font-serif text-3xl font-bold text-primary">৳ 0</span>
+                            </div>
+                        </div>
+                        
+                        <a href="index.html#cart" class="btn-primary w-full py-4 text-white font-bold rounded-xl flex items-center justify-center gap-2">
+                            <span>Proceed to Checkout</span>
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                            </svg>
+                        </a>
+                        
+                        <div class="mt-6 flex items-center justify-center gap-4 text-text-muted">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                            </svg>
+                            <span class="text-xs">Secure checkout</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </main>
+    
+    <!-- Footer -->
+    <footer class="bg-surface border-t border-border py-8 px-4 mt-auto">
+        <div class="max-w-7xl mx-auto text-center">
+            <p class="text-sm text-text-muted">
+                &copy; 2026 Jannat Baking Tools. All rights reserved.
+            </p>
+        </div>
+    </footer>
+    
+    <script>
+        // This page serves as a standalone cart view
+        // The actual cart functionality is in index.html
+        // Users are redirected to index.html with cart open for full functionality
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            // Redirect to main shop with cart open
+            // window.location.href = 'index.html';
+        });
+    </script>
+</body>
+</html>

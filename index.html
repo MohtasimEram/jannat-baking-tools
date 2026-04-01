@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jannat Baking Tools & Home Decor — Premium Baking Essentials</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <meta name="description"
+        content="Discover premium baking tools, silicone molds, essence, and home decor. Shop quality baking essentials with fast delivery across Bangladesh.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: { DEFAULT: '#E85A4F', dark: '#C94A40', light: '#F5A5A0', subtle: '#FEF2F1' },
+                        secondary: { DEFAULT: '#D4A574', dark: '#B88B5E', light: '#E8D4BC' },
+                        accent: { DEFAULT: '#4A90A4', light: '#E8F4F7' },
+                        surface: '#FFFFFF',
+                        background: '#FFFBF7',
+                        'bg-alt': '#FDF8F3',
+                        border: '#F0E6DC',
+                        text: { DEFAULT: '#2D2420', secondary: '#6B5B52', muted: '#A89B93' },
+                        success: { DEFAULT: '#22C55E', light: '#DCFCE7' },
+                        warning: { DEFAULT: '#F59E0B', light: '#FEF3C7' },
+                        error: { DEFAULT: '#EF4444', light: '#FEE2E2' }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        serif: ['Playfair Display', 'Georgia', 'serif'],
+                    },
+                    boxShadow: {
+                        'soft': '0 4px 20px -2px rgba(45, 36, 32, 0.08)',
+                        'glow': '0 0 30px rgba(232, 90, 79, 0.25)',
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body class="bg-background text-text font-sans min-h-screen bg-pattern">
+
+    <div class="floating-shape shape-1"></div>
+    <div class="floating-shape shape-2"></div>
+
+    <!-- ========== NAVBAR ========== -->
+    <nav class="sticky top-0 z-50 glass border-b border-border">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16 md:h-20">
+                <a href="index.html" class="flex flex-col group" id="nav-brand">
+                    <h1 class="font-serif text-xl md:text-2xl font-bold text-text leading-tight">
+                        <span class="text-primary italic">Jannat</span> Baking
+                    </h1>
+                    <span
+                        class="text-[10px] md:text-xs text-text-muted tracking-[0.2em] uppercase font-semibold mt-0.5 group-hover:text-primary transition-colors">
+                        Tools & Home Decor
+                    </span>
+                </a>
+
+                <div class="flex items-center gap-2 md:gap-6">
+                    <a href="track.html"
+                        class="hidden md:flex items-center gap-2 text-sm font-medium text-text-secondary hover:text-primary transition-colors px-3 py-2 rounded-lg hover:bg-primary-subtle"
+                        id="nav-track">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                        </svg>
+                        Track Order
+                    </a>
+
+                    <button onclick="toggleWishlistPanel()"
+                        class="relative group p-2.5 bg-bg-alt rounded-full hover:bg-primary-subtle transition-all duration-300"
+                        id="wishlist-btn">
+                        <svg class="w-5 h-5 text-text-secondary group-hover:text-primary transition-colors" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                        </svg>
+                        <span id="wishlist-count"
+                            class="absolute -top-1 -right-1 bg-primary text-white text-[10px] font-bold min-w-[20px] h-5 flex items-center justify-center rounded-full border-2 border-white transform scale-0 transition-transform duration-300">0</span>
+                    </button>
+
+                    <button onclick="toggleCart()"
+                        class="relative group p-2.5 bg-bg-alt rounded-full hover:bg-primary-subtle transition-all duration-300"
+                        id="cart-btn">
+                        <svg class="w-5 h-5 text-text-secondary group-hover:text-primary transition-colors" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                        </svg>
+                        <span id="cart-count"
+                            class="absolute -top-1 -right-1 bg-primary text-white text-[10px] font-bold min-w-[20px] h-5 flex items-center justify-center rounded-full border-2 border-white transform scale-0 transition-transform duration-300">0</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ========== HERO SECTION ========== -->
+    <header class="relative pt-12 pb-8 md:pt-20 md:pb-12 px-4 overflow-hidden">
+        <div class="max-w-4xl mx-auto text-center">
+            <div class="inline-flex items-center gap-2 px-4 py-2 bg-primary-subtle rounded-full mb-6 animate-fade-in">
+                <span class="w-2 h-2 bg-primary rounded-full animate-pulse"></span>
+                <span class="text-xs font-semibold text-primary-dark uppercase tracking-wider">Premium Quality Baking
+                    Essentials</span>
+            </div>
+
+            <h2 class="font-serif text-4xl md:text-6xl lg:text-7xl font-bold mb-4 md:mb-6 animate-fade-in stagger-1">
+                <span class="bg-gradient-to-r from-text via-text to-primary bg-clip-text text-transparent">Baking</span>
+                <span class="italic text-primary">Happiness</span>
+            </h2>
+
+            <p class="text-lg md:text-xl text-text-secondary max-w-xl mx-auto mb-8 md:mb-10 animate-fade-in stagger-2">
+                Discover premium baking tools, molds, and home decor that transform your kitchen into a creative
+                sanctuary.
+            </p>
+
+            <!-- Hero Buttons -->
+            <div class="flex flex-wrap items-center justify-center gap-4 mb-10 animate-fade-in stagger-3">
+                <a href="#products-section"
+                    class="px-8 py-4 bg-gradient-to-r from-primary to-primary-dark text-white font-bold rounded-2xl shadow-glow hover:shadow-lg hover:scale-[1.02] transition-all duration-300 flex items-center gap-2"
+                    id="hero-shop-btn">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                    </svg>
+                    Shop Now
+                </a>
+                <a href="https://wa.me/8801874244466" target="_blank"
+                    class="px-8 py-4 bg-surface border-2 border-border rounded-2xl font-bold text-text-secondary hover:border-success hover:text-success transition-all duration-300 flex items-center gap-2"
+                    id="hero-whatsapp-btn">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                        <path
+                            d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
+                    </svg>
+                    Chat on WhatsApp
+                </a>
+            </div>
+
+            <!-- Search -->
+            <div class="max-w-lg mx-auto relative group animate-fade-in stagger-3">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <svg class="w-5 h-5 text-text-muted group-focus-within:text-primary transition-colors" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+                <input type="text" id="search-input" placeholder="Search for molds, essence, tools..."
+                    class="w-full pl-12 pr-4 py-4 bg-surface border-2 border-border rounded-2xl text-text placeholder-text-muted focus:border-primary focus:ring-4 focus:ring-primary-subtle transition-all duration-300 outline-none shadow-soft"
+                    oninput="filterProducts()">
+            </div>
+        </div>
+    </header>
+
+    <!-- ========== CATEGORY CARDS ========== -->
+    <section class="px-4 mb-10">
+        <div class="max-w-4xl mx-auto">
+            <div class="category-grid" id="category-cards">
+                <div class="category-card" onclick="filterByCategory('molds')" data-category="molds">
+                    <div class="cat-icon bg-primary-subtle">🧁</div>
+                    <span class="cat-name">Molds</span>
+                    <span class="cat-count" id="count-molds">—</span>
+                </div>
+                <div class="category-card" onclick="filterByCategory('tools')" data-category="tools">
+                    <div class="cat-icon bg-accent-light">🔧</div>
+                    <span class="cat-name">Tools</span>
+                    <span class="cat-count" id="count-tools">—</span>
+                </div>
+                <div class="category-card" onclick="filterByCategory('decor')" data-category="decor">
+                    <div class="cat-icon bg-secondary-light">🎨</div>
+                    <span class="cat-name">Decor</span>
+                    <span class="cat-count" id="count-decor">—</span>
+                </div>
+                <div class="category-card" onclick="filterByCategory('essence')" data-category="essence">
+                    <div class="cat-icon bg-success-light">🌿</div>
+                    <span class="cat-name">Essence</span>
+                    <span class="cat-count" id="count-essence">—</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== FILTER PILLS + SORT ========== -->
+    <section class="px-4 mb-4" id="products-section">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex flex-wrap items-center justify-between gap-4">
+                <div class="flex flex-wrap gap-2 md:gap-3" id="category-filters">
+                    <button
+                        class="category-pill active px-4 py-2 md:px-6 md:py-2.5 bg-surface border border-border rounded-full text-sm font-medium text-text-secondary"
+                        data-cat="all" onclick="filterByCategory('all')">All Items</button>
+                    <button
+                        class="category-pill px-4 py-2 md:px-6 md:py-2.5 bg-surface border border-border rounded-full text-sm font-medium text-text-secondary"
+                        data-cat="molds" onclick="filterByCategory('molds')">Molds</button>
+                    <button
+                        class="category-pill px-4 py-2 md:px-6 md:py-2.5 bg-surface border border-border rounded-full text-sm font-medium text-text-secondary"
+                        data-cat="tools" onclick="filterByCategory('tools')">Tools</button>
+                    <button
+                        class="category-pill px-4 py-2 md:px-6 md:py-2.5 bg-surface border border-border rounded-full text-sm font-medium text-text-secondary"
+                        data-cat="decor" onclick="filterByCategory('decor')">Decor</button>
+                    <button
+                        class="category-pill px-4 py-2 md:px-6 md:py-2.5 bg-surface border border-border rounded-full text-sm font-medium text-text-secondary"
+                        data-cat="essence" onclick="filterByCategory('essence')">Essence</button>
+                </div>
+                <div class="sort-bar">
+                    <select id="sort-select" class="sort-select" onchange="sortProducts()">
+                        <option value="default">Sort by</option>
+                        <option value="price-low">Price: Low to High</option>
+                        <option value="price-high">Price: High to Low</option>
+                        <option value="stock-low">Stock: Low to High</option>
+                        <option value="name-az">Name: A to Z</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== PRODUCT GRID ========== -->
+    <main class="px-4 pb-12">
+        <div class="max-w-7xl mx-auto">
+            <div id="product-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+                <div class="col-span-full flex flex-col items-center justify-center py-20">
+                    <div
+                        class="w-16 h-16 border-4 border-primary-subtle border-t-primary rounded-full animate-spin mb-4">
+                    </div>
+                    <p class="text-text-muted animate-pulse">Loading delicious items...</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ========== WHY CHOOSE US ========== -->
+    <section class="px-4 py-16 bg-bg-alt">
+        <div class="max-w-5xl mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="font-serif text-3xl md:text-4xl font-bold text-text mb-3">
+                    Why Choose <span class="text-primary italic">Jannat</span>?
+                </h2>
+                <p class="text-text-secondary max-w-md mx-auto">We're committed to bringing you the best baking
+                    experience</p>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon bg-primary-subtle">
+                        <svg class="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                        </svg>
+                    </div>
+                    <h3>Premium Quality</h3>
+                    <p>Only the finest food-grade materials. Every product is tested for safety and durability.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon bg-accent-light">
+                        <svg class="w-8 h-8 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                    </div>
+                    <h3>Fast Delivery</h3>
+                    <p>Quick delivery inside Chittagong and nationwide shipping across Bangladesh.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon bg-success-light">
+                        <svg class="w-8 h-8 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <h3>Best Prices</h3>
+                    <p>Competitive wholesale and retail prices. Get the best value for your baking needs.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== WISHLIST OVERLAY + PANEL ========== -->
+    <div id="wishlist-overlay"
+        class="fixed inset-0 bg-text/50 backdrop-blur-sm z-[99] opacity-0 invisible transition-all duration-300"
+        onclick="toggleWishlistPanel()"></div>
+
+    <div id="wishlist-panel"
+        class="fixed top-0 right-0 w-full max-w-md h-full bg-surface shadow-2xl z-[100] transform translate-x-full transition-transform duration-500 ease-out flex flex-col">
+        <div class="flex items-center justify-between p-6 border-b border-border">
+            <div>
+                <h2 class="font-serif text-2xl font-bold text-text flex items-center gap-2">
+                    <svg class="w-6 h-6 text-primary" fill="currentColor" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                    </svg>
+                    Your Wishlist
+                </h2>
+                <p class="text-sm text-text-muted" id="wishlist-item-count">0 items</p>
+            </div>
+            <button onclick="toggleWishlistPanel()" class="p-2 hover:bg-bg-alt rounded-full transition-colors"
+                id="wishlist-close-btn">
+                <svg class="w-6 h-6 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <div id="wishlist-items" class="flex-1 overflow-y-auto p-6">
+            <div class="empty-state py-12">
+                <div class="w-20 h-20 mx-auto mb-4 bg-bg-alt rounded-full flex items-center justify-center">
+                    <svg class="w-10 h-10 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                    </svg>
+                </div>
+                <h3 class="font-serif text-lg font-semibold text-text mb-2">Your wishlist is empty</h3>
+                <p class="text-sm text-text-muted">Tap the heart on items you love!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== CART OVERLAY + PANEL ========== -->
+    <div id="cart-overlay"
+        class="fixed inset-0 bg-text/50 backdrop-blur-sm z-[99] opacity-0 invisible transition-all duration-300"
+        onclick="toggleCart()"></div>
+
+    <div id="cart-panel"
+        class="fixed top-0 right-0 w-full max-w-md h-full bg-surface shadow-2xl z-[100] transform translate-x-full transition-transform duration-500 ease-out flex flex-col">
+        <div class="flex items-center justify-between p-6 border-b border-border">
+            <div>
+                <h2 class="font-serif text-2xl font-bold text-text">Your Cart</h2>
+                <p class="text-sm text-text-muted" id="cart-item-count">0 items</p>
+            </div>
+            <button onclick="toggleCart()" class="p-2 hover:bg-bg-alt rounded-full transition-colors"
+                id="cart-close-btn">
+                <svg class="w-6 h-6 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <div class="flex-1 overflow-y-auto w-full flex flex-col">
+            <div id="cart-items" class="p-6 flex flex-col">
+            <div class="empty-state py-12 my-auto">
+                <div class="w-20 h-20 mx-auto mb-4 bg-bg-alt rounded-full flex items-center justify-center">
+                    <svg class="w-10 h-10 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                            d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                    </svg>
+                </div>
+                <h3 class="font-serif text-lg font-semibold text-text mb-2">Your cart is empty</h3>
+                <p class="text-sm text-text-muted">Add some delicious items to get started!</p>
+            </div>
+        </div>
+
+        <div id="cart-footer" class="border-t border-border p-6 bg-bg-alt hidden">
+            <div class="flex justify-between items-center mb-3">
+                <span class="text-text-secondary">Subtotal</span>
+                <span id="cart-subtotal" class="font-bold text-lg text-text">৳ 0</span>
+            </div>
+            <div class="flex justify-between items-center mb-3">
+                <span class="text-text-secondary">Delivery</span>
+                <span id="delivery-fee-display" class="delivery-fee text-sm font-medium text-success">Select
+                    location</span>
+            </div>
+            <div class="flex justify-between items-center mb-6 pt-4 border-t border-border">
+                <span class="font-semibold text-text">Total</span>
+                <span id="cart-total" class="font-serif text-2xl font-bold text-primary">৳ 0</span>
+            </div>
+
+            <form id="checkout-form" class="space-y-4">
+                <div>
+                    <input type="text" id="cust-name" placeholder="Full Name" required
+                        class="w-full px-4 py-3 bg-surface border-2 border-border rounded-xl text-text placeholder-text-muted focus:border-primary focus:ring-4 focus:ring-primary-subtle transition-all outline-none">
+                </div>
+                <div>
+                    <input type="text" id="cust-address" placeholder="Delivery Address" required
+                        class="w-full px-4 py-3 bg-surface border-2 border-border rounded-xl text-text placeholder-text-muted focus:border-primary focus:ring-4 focus:ring-primary-subtle transition-all outline-none">
+                </div>
+                <div>
+                    <input type="tel" id="cust-phone" placeholder="Phone Number" required
+                        class="w-full px-4 py-3 bg-surface border-2 border-border rounded-xl text-text placeholder-text-muted focus:border-primary focus:ring-4 focus:ring-primary-subtle transition-all outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-text-secondary mb-2">Delivery Location</label>
+                    <div class="relative">
+                        <select id="delivery-location" onchange="updateDeliveryFee()"
+                            class="w-full px-4 py-3 bg-surface border-2 border-border rounded-xl text-text outline-none focus:border-primary appearance-none cursor-pointer">
+                            <option value="Inside CTG">Inside CTG — ৳80</option>
+                            <option value="Outside CTG">Outside CTG — ৳150</option>
+                        </select>
+                        <div class="absolute inset-y-0 right-4 flex items-center pointer-events-none text-text-muted">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+                    </div>
+                    <p class="text-xs text-text-muted mt-2 flex items-start gap-1.5">
+                        <svg class="w-3.5 h-3.5 text-warning flex-shrink-0 mt-0.5" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        If the product weight is higher than 1KG, extra ৳20 will be added on each extra KG.
+                    </p>
+                </div>
+
+                <div>
+                    <textarea id="order-notes" placeholder="Order notes (optional) — e.g., gift wrap, specific color..."
+                        rows="2"
+                        class="order-note w-full px-4 py-3 bg-surface border-2 border-border rounded-xl text-text placeholder-text-muted focus:border-primary focus:ring-4 focus:ring-primary-subtle transition-all outline-none text-sm"></textarea>
+                </div>
+
+                <div class="p-4 bg-bg-alt rounded-xl border border-border flex items-center justify-between">
+                    <span class="text-sm font-medium text-text-secondary">Payment Method</span>
+                    <span class="font-bold text-primary flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        Cash on Delivery
+                    </span>
+                </div>
+
+                <button type="submit" id="checkout-btn"
+                    class="w-full py-4 bg-gradient-to-r from-primary to-primary-dark text-white font-bold rounded-xl shadow-glow hover:shadow-lg hover:scale-[1.02] transition-all duration-300 flex items-center justify-center gap-2">
+                    <span>Place Order</span>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                    </svg>
+                </button>
+            </form>
+        </div>
+        </div>
+    </div>
+
+    <!-- ========== PRODUCT MODAL ========== -->
+    <div id="product-modal"
+        class="fixed inset-0 z-[110] flex items-center justify-center p-4 opacity-0 invisible transition-all duration-300">
+        <div class="absolute inset-0 bg-text/70 backdrop-blur-sm" onclick="closeModal()"></div>
+        <div class="relative bg-surface rounded-3xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden transform scale-95 transition-transform duration-300"
+            onclick="event.stopPropagation()">
+            <button onclick="closeModal()"
+                class="absolute top-4 right-4 z-10 p-2 bg-surface/90 backdrop-blur rounded-full shadow-lg hover:bg-primary-subtle transition-colors"
+                id="modal-close-btn">
+                <svg class="w-6 h-6 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+
+            <div class="flex flex-col md:flex-row">
+                <div class="w-full md:w-1/2 h-64 md:h-auto bg-bg-alt relative">
+                    <img id="modal-img" src="" alt="" class="w-full h-full object-cover">
+                    <div id="modal-stock-badge" class="absolute top-4 left-4"></div>
+                </div>
+
+                <div class="w-full md:w-1/2 p-6 md:p-8 flex flex-col">
+                    <h2 id="modal-title" class="font-serif text-2xl md:text-3xl font-bold text-text mb-2"></h2>
+                    <p id="modal-price" class="text-2xl font-bold text-primary mb-4"></p>
+
+                    <div class="flex-1 overflow-y-auto w-full flex flex-col gap-4">
+                        <p id="modal-desc" class="text-text-secondary leading-relaxed"></p>
+                        
+                        <div id="modal-social-container" class="hidden">
+                            <a id="modal-social-link" href="#" target="_blank"
+                                class="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-xl text-sm font-semibold transition-colors">
+                                <span id="modal-social-icon"></span>
+                                <span id="modal-social-text">View Post</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-3 mt-6 pt-6 border-t border-border">
+                        <button onclick="closeModal()"
+                            class="flex-1 py-3 px-6 border-2 border-border rounded-xl font-semibold text-text-secondary hover:border-text hover:text-text transition-colors"
+                            id="modal-close-secondary">
+                            Close
+                        </button>
+                        <button id="modal-add-btn"
+                            class="flex-1 py-3 px-6 bg-gradient-to-r from-primary to-primary-dark text-white font-semibold rounded-xl shadow-glow hover:shadow-lg hover:scale-[1.02] transition-all duration-300 flex items-center justify-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                            </svg>
+                            Add to Cart
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== SUCCESS MODAL ========== -->
+    <div id="success-modal"
+        class="fixed inset-0 z-[120] flex items-center justify-center p-4 opacity-0 invisible transition-all duration-300">
+        <div class="absolute inset-0 bg-text/70 backdrop-blur-sm"></div>
+        <div
+            class="relative bg-surface rounded-3xl shadow-2xl p-8 max-w-sm w-full text-center transform scale-95 transition-transform duration-300">
+            <div
+                class="w-20 h-20 mx-auto mb-6 bg-success/10 rounded-full flex items-center justify-center checkmark-animate">
+                <svg class="w-10 h-10 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+                </svg>
+            </div>
+            <h3 class="font-serif text-2xl font-bold text-text mb-2">Order Placed!</h3>
+            <p class="text-text-secondary mb-6">Thank you for shopping with Jannat Baking Tools. We'll contact you soon!
+            </p>
+            <button onclick="location.reload()"
+                class="w-full py-3 bg-gradient-to-r from-primary to-primary-dark text-white font-semibold rounded-xl shadow-glow hover:shadow-lg transition-all duration-300"
+                id="success-continue-btn">
+                Continue Shopping
+            </button>
+        </div>
+    </div>
+
+    <!-- ========== TOAST ========== -->
+    <div id="toast-container" class="fixed bottom-6 right-6 z-[200] flex flex-col gap-3"></div>
+
+    <!-- ========== WHATSAPP FLOATING BUTTON ========== -->
+    <a href="https://wa.me/8801874244466" target="_blank" class="whatsapp-float" id="whatsapp-fab">
+        <svg viewBox="0 0 24 24">
+            <path
+                d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
+        </svg>
+        <span class="tooltip">Chat with us!</span>
+    </a>
+
+    <!-- ========== BACK TO TOP ========== -->
+    <button class="back-to-top" id="back-to-top" onclick="scrollToTop()">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+        </svg>
+    </button>
+
+    <!-- ========== MOBILE BOTTOM NAV ========== -->
+    <nav class="mobile-bottom-nav" id="mobile-nav">
+        <div class="nav-items">
+            <a href="index.html" class="nav-item active" id="mob-nav-home">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                <span>Home</span>
+            </a>
+            <button class="nav-item"
+                onclick="document.getElementById('products-section').scrollIntoView({behavior:'smooth'})"
+                id="mob-nav-search">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <span>Browse</span>
+            </button>
+            <button class="nav-item" onclick="toggleWishlistPanel()" id="mob-nav-wishlist">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+                <span>Wishlist</span>
+                <span id="mobile-wishlist-badge" class="mobile-cart-badge" style="display:none">0</span>
+            </button>
+            <button class="nav-item" onclick="toggleCart()" id="mob-nav-cart">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                </svg>
+                <span>Cart</span>
+                <span id="mobile-cart-badge" class="mobile-cart-badge" style="display:none">0</span>
+            </button>
+            <a href="track.html" class="nav-item" id="mob-nav-track">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                </svg>
+                <span>Track</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- ========== FOOTER ========== -->
+    <footer class="bg-surface border-t border-border py-12 px-4">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+                <!-- Brand -->
+                <div>
+                    <h3 class="font-serif text-xl font-bold text-text mb-2">
+                        <span class="text-primary italic">Jannat</span> Baking
+                    </h3>
+                    <p class="text-sm text-text-muted mb-4">Premium baking tools, silicone molds, essence, and home
+                        decor. Your one-stop shop for all baking essentials.</p>
+                    <div class="flex items-center gap-3">
+                        <a href="https://www.facebook.com/share/1AEsBQVnNB/" target="_blank"
+                            class="w-10 h-10 bg-bg-alt rounded-full flex items-center justify-center text-text-muted hover:bg-primary hover:text-white transition-all"
+                            id="social-facebook">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path
+                                    d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                            </svg>
+                        </a>
+                        <a href="https://instagram.com" target="_blank"
+                            class="w-10 h-10 bg-bg-alt rounded-full flex items-center justify-center text-text-muted hover:bg-gradient-to-br hover:from-purple-500 hover:to-pink-500 hover:text-white transition-all"
+                            id="social-instagram">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path
+                                    d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
+                            </svg>
+                        </a>
+                        <a href="https://wa.me/8801874244466" target="_blank"
+                            class="w-10 h-10 bg-bg-alt rounded-full flex items-center justify-center text-text-muted hover:bg-success hover:text-white transition-all"
+                            id="social-whatsapp">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path
+                                    d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <!-- Quick Links -->
+                <div>
+                    <h4 class="font-semibold text-text mb-4 text-sm uppercase tracking-wider">Quick Links</h4>
+                    <ul class="space-y-3 text-sm">
+                        <li><a href="index.html"
+                                class="text-text-secondary hover:text-primary transition-colors">Home</a></li>
+                        <li><a href="track.html" class="text-text-secondary hover:text-primary transition-colors">Track
+                                Order</a></li>
+
+                    </ul>
+                </div>
+                <!-- Contact -->
+                <div>
+                    <h4 class="font-semibold text-text mb-4 text-sm uppercase tracking-wider">Contact Us</h4>
+                    <ul class="space-y-3 text-sm text-text-secondary">
+                        <li class="flex items-center gap-2">
+                            <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                            </svg>
+                            01874244466
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                            info@jannatbaking.com
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            Chittagong, Bangladesh
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="pt-8 border-t border-border text-center">
+                <p class="text-sm text-text-muted">&copy; 2026 Jannat Baking Tools. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script type="module" src="js/app.js"></script>
+</body>
+
+</html>
