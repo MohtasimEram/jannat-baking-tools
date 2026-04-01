@@ -48,8 +48,10 @@
 
 <body class="bg-background text-text font-sans min-h-screen bg-pattern">
 
-    <div class="floating-shape shape-1"></div>
-    <div class="floating-shape shape-2"></div>
+    <div style="position:fixed;top:0;left:0;width:100%;height:100%;overflow:hidden;pointer-events:none;z-index:0;">
+        <div class="floating-shape shape-1"></div>
+        <div class="floating-shape shape-2"></div>
+    </div>
 
     <!-- ========== NAVBAR ========== -->
     <nav class="sticky top-0 z-50 glass border-b border-border">
@@ -347,99 +349,100 @@
 
         <div class="flex-1 overflow-y-auto w-full flex flex-col">
             <div id="cart-items" class="p-6 flex flex-col">
-            <div class="empty-state py-12 my-auto">
-                <div class="w-20 h-20 mx-auto mb-4 bg-bg-alt rounded-full flex items-center justify-center">
-                    <svg class="w-10 h-10 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                            d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                    </svg>
+                <div class="empty-state py-12 my-auto">
+                    <div class="w-20 h-20 mx-auto mb-4 bg-bg-alt rounded-full flex items-center justify-center">
+                        <svg class="w-10 h-10 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                        </svg>
+                    </div>
+                    <h3 class="font-serif text-lg font-semibold text-text mb-2">Your cart is empty</h3>
+                    <p class="text-sm text-text-muted">Add some delicious items to get started!</p>
                 </div>
-                <h3 class="font-serif text-lg font-semibold text-text mb-2">Your cart is empty</h3>
-                <p class="text-sm text-text-muted">Add some delicious items to get started!</p>
-            </div>
-        </div>
-
-        <div id="cart-footer" class="border-t border-border p-6 bg-bg-alt hidden">
-            <div class="flex justify-between items-center mb-3">
-                <span class="text-text-secondary">Subtotal</span>
-                <span id="cart-subtotal" class="font-bold text-lg text-text">৳ 0</span>
-            </div>
-            <div class="flex justify-between items-center mb-3">
-                <span class="text-text-secondary">Delivery</span>
-                <span id="delivery-fee-display" class="delivery-fee text-sm font-medium text-success">Select
-                    location</span>
-            </div>
-            <div class="flex justify-between items-center mb-6 pt-4 border-t border-border">
-                <span class="font-semibold text-text">Total</span>
-                <span id="cart-total" class="font-serif text-2xl font-bold text-primary">৳ 0</span>
             </div>
 
-            <form id="checkout-form" class="space-y-4">
-                <div>
-                    <input type="text" id="cust-name" placeholder="Full Name" required
-                        class="w-full px-4 py-3 bg-surface border-2 border-border rounded-xl text-text placeholder-text-muted focus:border-primary focus:ring-4 focus:ring-primary-subtle transition-all outline-none">
+            <div id="cart-footer" class="border-t border-border p-6 bg-bg-alt hidden">
+                <div class="flex justify-between items-center mb-3">
+                    <span class="text-text-secondary">Subtotal</span>
+                    <span id="cart-subtotal" class="font-bold text-lg text-text">৳ 0</span>
                 </div>
-                <div>
-                    <input type="text" id="cust-address" placeholder="Delivery Address" required
-                        class="w-full px-4 py-3 bg-surface border-2 border-border rounded-xl text-text placeholder-text-muted focus:border-primary focus:ring-4 focus:ring-primary-subtle transition-all outline-none">
+                <div class="flex justify-between items-center mb-3">
+                    <span class="text-text-secondary">Delivery</span>
+                    <span id="delivery-fee-display" class="delivery-fee text-sm font-medium text-success">Select
+                        location</span>
                 </div>
-                <div>
-                    <input type="tel" id="cust-phone" placeholder="Phone Number" required
-                        class="w-full px-4 py-3 bg-surface border-2 border-border rounded-xl text-text placeholder-text-muted focus:border-primary focus:ring-4 focus:ring-primary-subtle transition-all outline-none">
+                <div class="flex justify-between items-center mb-6 pt-4 border-t border-border">
+                    <span class="font-semibold text-text">Total</span>
+                    <span id="cart-total" class="font-serif text-2xl font-bold text-primary">৳ 0</span>
                 </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-text-secondary mb-2">Delivery Location</label>
-                    <div class="relative">
-                        <select id="delivery-location" onchange="updateDeliveryFee()"
-                            class="w-full px-4 py-3 bg-surface border-2 border-border rounded-xl text-text outline-none focus:border-primary appearance-none cursor-pointer">
-                            <option value="Inside CTG">Inside CTG — ৳80</option>
-                            <option value="Outside CTG">Outside CTG — ৳150</option>
-                        </select>
-                        <div class="absolute inset-y-0 right-4 flex items-center pointer-events-none text-text-muted">
+                <form id="checkout-form" class="space-y-4">
+                    <div>
+                        <input type="text" id="cust-name" placeholder="Full Name" required
+                            class="w-full px-4 py-3 bg-surface border-2 border-border rounded-xl text-text placeholder-text-muted focus:border-primary focus:ring-4 focus:ring-primary-subtle transition-all outline-none">
+                    </div>
+                    <div>
+                        <input type="text" id="cust-address" placeholder="Delivery Address" required
+                            class="w-full px-4 py-3 bg-surface border-2 border-border rounded-xl text-text placeholder-text-muted focus:border-primary focus:ring-4 focus:ring-primary-subtle transition-all outline-none">
+                    </div>
+                    <div>
+                        <input type="tel" id="cust-phone" placeholder="Phone Number" required
+                            class="w-full px-4 py-3 bg-surface border-2 border-border rounded-xl text-text placeholder-text-muted focus:border-primary focus:ring-4 focus:ring-primary-subtle transition-all outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-text-secondary mb-2">Delivery Location</label>
+                        <div class="relative">
+                            <select id="delivery-location" onchange="updateDeliveryFee()"
+                                class="w-full px-4 py-3 bg-surface border-2 border-border rounded-xl text-text outline-none focus:border-primary appearance-none cursor-pointer">
+                                <option value="Inside CTG">Inside CTG — ৳80</option>
+                                <option value="Outside CTG">Outside CTG — ৳150</option>
+                            </select>
+                            <div
+                                class="absolute inset-y-0 right-4 flex items-center pointer-events-none text-text-muted">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </div>
+                        </div>
+                        <p class="text-xs text-text-muted mt-2 flex items-start gap-1.5">
+                            <svg class="w-3.5 h-3.5 text-warning flex-shrink-0 mt-0.5" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            If the product weight is higher than 1KG, extra ৳20 will be added on each extra KG.
+                        </p>
+                    </div>
+
+                    <div>
+                        <textarea id="order-notes"
+                            placeholder="Order notes (optional) — e.g., gift wrap, specific color..." rows="2"
+                            class="order-note w-full px-4 py-3 bg-surface border-2 border-border rounded-xl text-text placeholder-text-muted focus:border-primary focus:ring-4 focus:ring-primary-subtle transition-all outline-none text-sm"></textarea>
+                    </div>
+
+                    <div class="p-4 bg-bg-alt rounded-xl border border-border flex items-center justify-between">
+                        <span class="text-sm font-medium text-text-secondary">Payment Method</span>
+                        <span class="font-bold text-primary flex items-center gap-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M19 9l-7 7-7-7" />
+                                    d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
                             </svg>
-                        </div>
+                            Cash on Delivery
+                        </span>
                     </div>
-                    <p class="text-xs text-text-muted mt-2 flex items-start gap-1.5">
-                        <svg class="w-3.5 h-3.5 text-warning flex-shrink-0 mt-0.5" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        If the product weight is higher than 1KG, extra ৳20 will be added on each extra KG.
-                    </p>
-                </div>
 
-                <div>
-                    <textarea id="order-notes" placeholder="Order notes (optional) — e.g., gift wrap, specific color..."
-                        rows="2"
-                        class="order-note w-full px-4 py-3 bg-surface border-2 border-border rounded-xl text-text placeholder-text-muted focus:border-primary focus:ring-4 focus:ring-primary-subtle transition-all outline-none text-sm"></textarea>
-                </div>
-
-                <div class="p-4 bg-bg-alt rounded-xl border border-border flex items-center justify-between">
-                    <span class="text-sm font-medium text-text-secondary">Payment Method</span>
-                    <span class="font-bold text-primary flex items-center gap-2">
+                    <button type="submit" id="checkout-btn"
+                        class="w-full py-4 bg-gradient-to-r from-primary to-primary-dark text-white font-bold rounded-xl shadow-glow hover:shadow-lg hover:scale-[1.02] transition-all duration-300 flex items-center justify-center gap-2">
+                        <span>Place Order</span>
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                                d="M17 8l4 4m0 0l-4 4m4-4H3" />
                         </svg>
-                        Cash on Delivery
-                    </span>
-                </div>
-
-                <button type="submit" id="checkout-btn"
-                    class="w-full py-4 bg-gradient-to-r from-primary to-primary-dark text-white font-bold rounded-xl shadow-glow hover:shadow-lg hover:scale-[1.02] transition-all duration-300 flex items-center justify-center gap-2">
-                    <span>Place Order</span>
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                    </svg>
-                </button>
-            </form>
-        </div>
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -469,7 +472,7 @@
 
                     <div class="flex-1 overflow-y-auto w-full flex flex-col gap-4">
                         <p id="modal-desc" class="text-text-secondary leading-relaxed"></p>
-                        
+
                         <div id="modal-social-container" class="hidden">
                             <a id="modal-social-link" href="#" target="_blank"
                                 class="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-xl text-sm font-semibold transition-colors">
