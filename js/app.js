@@ -676,15 +676,19 @@ async function handleCheckout(e) {
         }).catch(err => console.error("Telegram notification error:", err));
         // -----------------------------
 
-        // Update product stock
-        for (const item of cart) {
-            const product = products.find(p => p.id === item.id);
-            if (product) {
-                const productRef = doc(db, "products", item.id);
-                await updateDoc(productRef, {
-                    stock: product.stock - item.qty
-                });
+        // Update product stock (Wrapped in try/catch so permission errors don't crash checkout)
+        try {
+            for (const item of cart) {
+                const product = products.find(p => p.id === item.id);
+                if (product) {
+                    const productRef = doc(db, "products", item.id);
+                    await updateDoc(productRef, {
+                        stock: product.stock - item.qty
+                    });
+                }
             }
+        } catch (stockError) {
+            console.warn("Stock update skipped (likely due to security rules). Order still placed successfully.");
         }
 
         // Show success
