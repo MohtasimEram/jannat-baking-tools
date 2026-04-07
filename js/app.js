@@ -115,6 +115,9 @@ async function loadProducts() {
 
         updateCategoryCounts();
         renderProducts();
+
+        // Check for product link in URL and auto-open modal
+        checkProductLink();
     } catch (error) {
         console.error("Error loading products:", error);
         showToast("Failed to load products. Please refresh.", "error");
@@ -125,6 +128,26 @@ async function loadProducts() {
                 <button onclick="location.reload()" class="mt-4 px-6 py-2 bg-primary text-white rounded-lg">Retry</button>
             </div>
         `;
+    }
+}
+
+// ========================================
+// PRODUCT DEEP LINKING
+// ========================================
+function checkProductLink() {
+    const params = new URLSearchParams(window.location.search);
+    const productId = params.get('product');
+    if (productId) {
+        const product = products.find(p => p.id === productId);
+        if (product) {
+            // Small delay to let the page render first
+            setTimeout(() => {
+                openProductModal(productId);
+                // Scroll to products section
+                const section = document.getElementById('products-section');
+                if (section) section.scrollIntoView({ behavior: 'smooth' });
+            }, 300);
+        }
     }
 }
 
@@ -530,6 +553,11 @@ window.openProductModal = function (productId) {
     const product = products.find(p => p.id === productId);
     if (!product) return;
 
+    // Update URL with product ID (without reloading)
+    const url = new URL(window.location);
+    url.searchParams.set('product', productId);
+    window.history.replaceState({}, '', url);
+
     document.getElementById('modal-img').src = product.imageUrl || 'https://via.placeholder.com/600x400';
     document.getElementById('modal-title').textContent = product.name;
     document.getElementById('modal-price').innerHTML = `৳ ${product.price} <span class="inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-bold ml-3 ${product.stock < 5 ? 'bg-red-500 text-white' : product.stock < 15 ? 'bg-amber-500 text-white' : product.stock > 0 ? 'bg-emerald-500 text-white' : 'bg-gray-500 text-white'}">${product.stock > 0 ? product.stock + ' left' : 'Out of Stock'}</span>`;
@@ -573,6 +601,13 @@ window.openProductModal = function (productId) {
     addBtn.disabled = product.stock <= 0;
     addBtn.classList.toggle('opacity-50', product.stock <= 0);
 
+    // Wire up share button
+    const shareBtn = document.getElementById('modal-share-btn');
+    shareBtn.onclick = (e) => {
+        e.stopPropagation();
+        copyProductLink(productId);
+    };
+
     const modal = document.getElementById('product-modal');
     modal.classList.remove('opacity-0', 'invisible');
     modal.querySelector('.relative').classList.remove('scale-95');
@@ -586,6 +621,35 @@ window.closeModal = function () {
     modal.querySelector('.relative').classList.add('scale-95');
     modal.querySelector('.relative').classList.remove('scale-100');
     document.body.classList.remove('overflow-hidden');
+
+    // Remove product ID from URL
+    const url = new URL(window.location);
+    url.searchParams.delete('product');
+    window.history.replaceState({}, '', url);
+};
+
+// ========================================
+// COPY PRODUCT LINK
+// ========================================
+window.copyProductLink = function (productId) {
+    const url = new URL(window.location.origin + window.location.pathname);
+    url.searchParams.set('product', productId);
+    const link = url.toString();
+
+    navigator.clipboard.writeText(link).then(() => {
+        showToast('Product link copied! 🔗', 'success');
+    }).catch(() => {
+        // Fallback for older browsers
+        const textarea = document.createElement('textarea');
+        textarea.value = link;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        showToast('Product link copied! 🔗', 'success');
+    });
 };
 
 // ========================================
