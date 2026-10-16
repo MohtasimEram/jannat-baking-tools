@@ -1,346 +1,475 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Product Manager - Jannat Baking</title>
+    <meta name="theme-color" content="#FFFBF7">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Product Manager — Jannat Baking</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;1,400;1,600&display=swap"
+        rel="stylesheet">
+
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: { DEFAULT: '#E85A4F', dark: '#C94A40', light: '#F5A5A0', subtle: '#FEF2F1' },
-                        secondary: { DEFAULT: '#D4A574', dark: '#B88B5E', light: '#E8D4BC' },
-                        accent: { DEFAULT: '#4A90A4', light: '#E8F4F7' },
-                        surface: '#FFFFFF',
-                        background: '#FFFBF7',
-                        'bg-alt': '#FDF8F3',
-                        border: '#F0E6DC',
-                        text: { DEFAULT: '#2D2420', secondary: '#6B5B52', muted: '#A89B93' },
-                        success: { DEFAULT: '#22C55E', light: '#DCFCE7' },
-                        warning: { DEFAULT: '#F59E0B', light: '#FEF3C7' },
-                        error: { DEFAULT: '#EF4444', light: '#FEE2E2' }
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'system-ui', 'sans-serif'],
-                        serif: ['Playfair Display', 'Georgia', 'serif'],
-                    }
-                }
-            }
-        }
-    </script>
+    <script src="js/theme.js"></script>
     <link rel="stylesheet" href="css/styles.css">
 </head>
+
 <body class="bg-background text-text font-sans">
-    
-    <div id="sidebar-overlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
-    
+
+    <div id="sidebar-overlay" class="sidebar-overlay" data-sidebar-close></div>
+
     <div class="dashboard-grid">
+        <!-- ========== SIDEBAR ========== -->
         <aside id="sidebar" class="sidebar flex flex-col">
             <div class="p-6 border-b border-border">
                 <a href="index.html" class="flex flex-col">
-                    <h1 class="font-serif text-xl font-bold text-text">
+                    <span class="font-serif text-xl font-bold text-text">
                         <span class="text-primary italic">Jannat</span> Baking
-                    </h1>
-                    <span class="text-xs text-text-muted tracking-wider uppercase">Admin Panel</span>
+                    </span>
+                    <span class="text-[10px] text-text-muted tracking-[0.18em] uppercase font-bold mt-0.5">Admin
+                        Panel</span>
                 </a>
             </div>
-            
-            <nav class="flex-1 py-4">
-                <div class="px-4 mb-2 text-xs font-semibold text-text-muted uppercase tracking-wider">Main</div>
-                <a href="orders.html" class="nav-item flex items-center gap-3 px-6 py-3 text-sm font-medium text-text-secondary hover:text-text hover:bg-bg-alt">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+
+            <nav class="flex-1 py-4" aria-label="Admin">
+                <p class="px-6 mb-2 text-[10px] font-bold text-text-muted uppercase tracking-[0.14em]">Main</p>
+                <a href="orders.html" class="nav-item">
+                    <svg width="18" height="18" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
                     </svg>
                     Orders
+                    <span id="pending-badge"
+                        class="ml-auto bg-primary text-white text-[10px] font-bold px-2 py-0.5 rounded-full hidden">0</span>
                 </a>
-                <a href="admin.html" class="nav-item active flex items-center gap-3 px-6 py-3 text-sm font-medium">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                <a href="admin.html" class="nav-item active" aria-current="page">
+                    <svg width="18" height="18" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                     </svg>
                     Products
                 </a>
-                
-                <div class="px-4 mt-6 mb-2 text-xs font-semibold text-text-muted uppercase tracking-wider">Settings</div>
-                <a href="index.html" class="nav-item flex items-center gap-3 px-6 py-3 text-sm font-medium text-text-secondary hover:text-text hover:bg-bg-alt">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+
+                <p class="px-6 mt-6 mb-2 text-[10px] font-bold text-text-muted uppercase tracking-[0.14em]">Shop</p>
+                <a href="index.html" class="nav-item" target="_blank" rel="noopener">
+                    <svg width="18" height="18" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                     </svg>
-                    View Shop
+                    View storefront
                 </a>
             </nav>
-            
+
             <div class="p-4 border-t border-border">
                 <div class="flex items-center gap-3 p-3 bg-bg-alt rounded-xl">
-                    <div class="w-10 h-10 bg-gradient-to-br from-primary to-primary-dark rounded-full flex items-center justify-center text-white font-bold">
-                        A
-                    </div>
+                    <div
+                        class="w-10 h-10 bg-gradient-to-br from-primary to-primary-dark rounded-full flex items-center justify-center text-white font-bold shrink-0"
+                        data-admin-initial>A</div>
                     <div class="flex-1 min-w-0">
-                        <p class="text-sm font-semibold text-text truncate">Admin User</p>
-                        <p class="text-xs text-text-muted truncate">admin@jannatbaking.com</p>
+                        <p class="text-sm font-bold text-text truncate">Admin</p>
+                        <p class="text-xs text-text-muted truncate" data-admin-email>Signed in</p>
                     </div>
-                    <button onclick="logout()" class="p-2 text-text-muted hover:text-error transition-colors" title="Logout">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                    <button type="button" data-logout class="p-2 text-text-muted hover:text-error transition-colors"
+                        title="Log out" aria-label="Log out">
+                        <svg width="18" height="18" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                         </svg>
                     </button>
                 </div>
             </div>
         </aside>
-        
-        <main class="flex-1 overflow-auto">
-            <header class="sticky top-0 z-30 bg-background/80 backdrop-blur-lg border-b border-border">
-                <div class="flex items-center justify-between px-6 py-4">
-                    <div class="flex items-center gap-4">
-                        <button onclick="toggleSidebar()" class="mobile-menu-btn p-2 hover:bg-bg-alt rounded-lg transition-colors">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+
+        <!-- ========== MAIN ========== -->
+        <main class="min-w-0">
+            <header class="sticky top-0 z-30 glass border-b border-border">
+                <div class="flex items-center justify-between gap-4 px-4 md:px-6 py-4">
+                    <div class="flex items-center gap-3 min-w-0">
+                        <button type="button" data-sidebar-toggle
+                            class="mobile-menu-btn p-2 hover:bg-bg-alt rounded-lg transition-colors"
+                            aria-label="Open menu">
+                            <svg width="18" height="18" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 6h16M4 12h16M4 18h16" />
                             </svg>
                         </button>
-                        <div>
-                            <h2 class="font-serif text-2xl font-bold text-text">Product Manager</h2>
-                            <p class="text-sm text-text-muted">Add and manage your inventory</p>
+                        <div class="min-w-0">
+                            <h1 class="font-serif text-xl md:text-2xl font-bold text-text truncate">Product Manager
+                            </h1>
+                            <p class="text-xs md:text-sm text-text-muted">Add, edit and track your inventory</p>
                         </div>
                     </div>
+                    <button type="button" id="refresh-inventory" class="icon-btn" aria-label="Refresh inventory">
+                        <svg width="18" height="18" id="refresh-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                            aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                    </button>
                 </div>
             </header>
-            
-            <div class="p-6">
-                <!-- Dashboard Summary Cards -->
-                <div class="admin-summary-grid mb-8" id="admin-summary">
+
+            <div class="p-4 md:p-6 max-w-[1500px]">
+
+                <!-- Summary -->
+                <div class="admin-summary-grid mb-6">
                     <div class="admin-summary-card">
-                        <div class="summary-value text-primary" id="total-products-count">0</div>
-                        <div class="summary-label">Total Products</div>
+                        <p class="summary-value text-primary" id="total-products-count">0</p>
+                        <p class="summary-label">Products</p>
                     </div>
                     <div class="admin-summary-card">
-                        <div class="summary-value text-warning" id="low-stock-count">0</div>
-                        <div class="summary-label">Low Stock (≤5)</div>
+                        <p class="summary-value text-accent" id="total-stock-count">0</p>
+                        <p class="summary-label">Units in stock</p>
                     </div>
                     <div class="admin-summary-card">
-                        <div class="summary-value text-error" id="out-of-stock-count">0</div>
-                        <div class="summary-label">Out of Stock</div>
+                        <p class="summary-value text-warning" id="low-stock-count">0</p>
+                        <p class="summary-label">Low stock (&le;5)</p>
+                    </div>
+                    <div class="admin-summary-card">
+                        <p class="summary-value text-error" id="out-of-stock-count">0</p>
+                        <p class="summary-label">Out of stock</p>
                     </div>
                 </div>
 
-                <!-- Low Stock Alert -->
                 <div id="low-stock-alert" class="hidden"></div>
 
-                <!-- Add Product Form -->
-                <div class="bg-surface rounded-2xl border border-border p-6 md:p-8 mb-8">
+                <!-- Add product -->
+                <section class="panel p-5 md:p-7 mb-8" aria-labelledby="add-heading">
                     <div class="flex items-center gap-3 mb-6">
-                        <div class="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
-                            <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        <span class="w-10 h-10 bg-primary-subtle rounded-xl flex items-center justify-center shrink-0">
+                            <svg width="18" height="18" class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 4v16m8-8H4" />
                             </svg>
-                        </div>
+                        </span>
                         <div>
-                            <h3 class="font-serif text-xl font-bold text-text">Add New Product</h3>
-                            <p class="text-sm text-text-muted">Fill in the details below</p>
+                            <h2 id="add-heading" class="font-serif text-lg md:text-xl font-bold text-text">Add new
+                                product</h2>
+                            <p class="text-xs md:text-sm text-text-muted">Up to 6 photos and unlimited colour options
+                            </p>
                         </div>
                     </div>
-                    
-                    <form id="add-product-form" class="space-y-6">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                    <form id="add-product-form" class="space-y-6" novalidate>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <div>
-                                <label class="block text-sm font-semibold text-text mb-2">Product Name *</label>
-                                <input type="text" id="p-name" placeholder="e.g., Silicone Cake Mold" required
-                                    class="form-input w-full px-4 py-3 border-2 border-border rounded-xl text-text outline-none">
+                                <label class="form-label" for="p-name">Product name *</label>
+                                <input type="text" id="p-name" class="form-input"
+                                    placeholder="e.g. Silicone Rose Cake Mold" maxlength="140" required>
+                                <span class="field-error" id="err-p-name"></span>
                             </div>
-                            
                             <div>
-                                <label class="block text-sm font-semibold text-text mb-2">Category *</label>
-                                <select id="p-category" required
-                                    class="form-input w-full px-4 py-3 border-2 border-border rounded-xl text-text outline-none bg-white">
-                                    <option value="">Select category</option>
+                                <label class="form-label" for="p-category">Category *</label>
+                                <select id="p-category" class="form-select" required>
+                                    <option value="">Select a category</option>
                                     <option value="molds">Molds</option>
                                     <option value="tools">Tools</option>
                                     <option value="decor">Decor</option>
                                     <option value="essence">Essence</option>
                                 </select>
+                                <span class="field-error" id="err-p-category"></span>
                             </div>
                         </div>
-                        
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
                             <div>
-                                <label class="block text-sm font-semibold text-text mb-2">Description *</label>
-                                <textarea id="p-desc" rows="3" placeholder="Describe your product..." required
-                                    class="form-input w-full px-4 py-3 border-2 border-border rounded-xl text-text outline-none resize-none"></textarea>
+                                <label class="form-label" for="p-price">Price (৳) *</label>
+                                <input type="number" id="p-price" class="form-input" placeholder="450" min="0"
+                                    step="1" required>
+                                <span class="field-error" id="err-p-price"></span>
                             </div>
-                            
                             <div>
-                                <label class="block text-sm font-semibold text-text mb-2">Social Link (Optional)</label>
-                                <textarea id="p-social" rows="3" placeholder="https://facebook.com/... or https://instagram.com/..."
-                                    class="form-input w-full px-4 py-3 border-2 border-border rounded-xl text-text outline-none resize-none"></textarea>
+                                <label class="form-label" for="p-stock">Stock *</label>
+                                <input type="number" id="p-stock" class="form-input" placeholder="20" min="0" step="1"
+                                    required>
+                                <span class="field-error" id="err-p-stock"></span>
                             </div>
-                        </div>
-                        
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div>
-                                <label class="block text-sm font-semibold text-text mb-2">Price (৳) *</label>
-                                <div class="relative">
-                                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted font-semibold">৳</span>
-                                    <input type="number" id="p-price" placeholder="450" min="0" required
-                                        class="form-input w-full pl-10 pr-4 py-3 border-2 border-border rounded-xl text-text outline-none">
-                                </div>
-                            </div>
-                            
-                            <div>
-                                <label class="block text-sm font-semibold text-text mb-2">Stock *</label>
-                                <input type="number" id="p-stock" placeholder="20" min="0" required
-                                    class="form-input w-full px-4 py-3 border-2 border-border rounded-xl text-text outline-none">
-                            </div>
-                            
-                            <div>
-                                <label class="block text-sm font-semibold text-text mb-2">Product Image *</label>
-                                <div class="file-upload">
-                                    <input type="file" id="p-image" accept="image/*" onchange="previewImage(this)">
-                                    <label for="p-image" id="file-label" class="file-upload-label">
-                                        <svg class="w-8 h-8 text-text-muted mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                        </svg>
-                                        <span class="text-sm text-text-muted">Click to upload image</span>
-                                    </label>
-                                </div>
+                                <label class="form-label" for="p-social">Social post link</label>
+                                <input type="url" id="p-social" class="form-input"
+                                    placeholder="https://facebook.com/…" maxlength="400">
+                                <span class="field-error" id="err-p-social"></span>
                             </div>
                         </div>
-                        
-                        <button type="submit" id="submit-btn"
-                            class="btn-primary w-full md:w-auto px-8 py-4 text-white font-bold rounded-xl flex items-center justify-center gap-2">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                            </svg>
-                            Add Product
-                        </button>
-                    </form>
-                </div>
-                
-                <!-- Inventory Table -->
-                <div class="bg-surface rounded-2xl border border-border overflow-hidden">
-                    <div class="p-6 border-b border-border">
-                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                            <div>
-                                <h3 class="font-serif text-xl font-bold text-text">Current Inventory</h3>
-                                <p class="text-sm text-text-muted" id="inventory-count">Loading...</p>
+
+                        <div>
+                            <label class="form-label" for="p-desc">Description *</label>
+                            <textarea id="p-desc" rows="4" class="form-textarea"
+                                placeholder="Size, material, how to use, what's included…" maxlength="4000"
+                                required></textarea>
+                            <span class="field-error" id="err-p-desc"></span>
+                        </div>
+
+                        <!-- Images -->
+                        <div>
+                            <div class="flex items-end justify-between gap-3 mb-2">
+                                <label class="form-label !mb-0" for="p-image">Product photos *</label>
+                                <span class="text-[11px] font-semibold text-text-muted" id="p-image-count">0 / 6</span>
                             </div>
-                            <div class="flex items-center gap-3">
-                                <div class="relative">
-                                    <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                            <div class="file-upload mb-3">
+                                <input type="file" id="p-image" accept="image/png,image/jpeg,image/webp,image/gif"
+                                    multiple>
+                                <label for="p-image" id="file-label" class="file-upload-label">
+                                    <svg width="18" height="18" class="w-7 h-7 text-text-muted mb-2" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24" aria-hidden="true">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                     </svg>
-                                    <input type="text" id="search-products" placeholder="Search products..." oninput="searchProducts()"
-                                        class="pl-10 pr-4 py-2 border border-border rounded-xl text-sm text-text outline-none focus:border-primary focus:ring-4 focus:ring-primary-subtle transition-all">
+                                    <span class="text-sm font-semibold text-text-secondary">Click to choose photos</span>
+                                    <span class="text-[11px] text-text-muted mt-1">JPG, PNG, WebP or GIF · max 8MB
+                                        each</span>
+                                </label>
+                            </div>
+                            <div class="img-manager" id="p-image-manager"></div>
+                            <p class="text-[11px] text-text-muted mt-2">The first photo is the cover image. Use the
+                                arrows to reorder.</p>
+                            <span class="field-error" id="err-p-image"></span>
+                        </div>
+
+                        <!-- Colours -->
+                        <div>
+                            <div class="flex items-end justify-between gap-3 mb-2">
+                                <label class="form-label !mb-0">Colour options</label>
+                                <button type="button" id="p-add-color" class="btn btn-secondary btn-sm">+ Add
+                                    colour</button>
+                            </div>
+                            <div class="color-rows" id="p-colors"></div>
+                            <p class="text-[11px] text-text-muted mt-2">Leave empty if this product has no colour
+                                choices. Customers must pick one of these before adding to the cart.</p>
+                            <span class="field-error" id="err-p-colors"></span>
+                        </div>
+
+                        <label class="switch">
+                            <input type="checkbox" id="p-featured">
+                            <span class="track" aria-hidden="true"></span>
+                            <span>Show in the “Trending right now” rail</span>
+                        </label>
+
+                        <div class="flex flex-wrap gap-3 pt-2">
+                            <button type="submit" id="submit-btn" class="btn btn-primary">
+                                <svg width="18" height="18" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                    aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                </svg>
+                                <span>Add product</span>
+                            </button>
+                            <button type="reset" id="reset-btn" class="btn btn-ghost">Reset form</button>
+                        </div>
+                    </form>
+                </section>
+
+                <!-- Inventory -->
+                <section class="panel overflow-hidden" aria-labelledby="inv-heading">
+                    <div class="p-5 border-b border-border">
+                        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                            <div>
+                                <h2 id="inv-heading" class="font-serif text-lg md:text-xl font-bold text-text">Current
+                                    inventory</h2>
+                                <p class="text-xs md:text-sm text-text-muted" id="inventory-count">Loading…</p>
+                            </div>
+                            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                                <div class="relative">
+                                    <svg width="18" height="18" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted"
+                                        fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                    </svg>
+                                    <label for="search-products" class="sr-only">Search products</label>
+                                    <input type="search" id="search-products" placeholder="Search products…"
+                                        class="w-full sm:w-56 pl-10 pr-4 py-2.5 border border-border-strong rounded-xl text-sm outline-none focus:border-primary focus:ring-4 focus:ring-primary-subtle transition-all bg-surface">
                                 </div>
+                                <label for="filter-category" class="sr-only">Filter by category</label>
+                                <select id="filter-category" class="sort-select !py-2.5">
+                                    <option value="all">All categories</option>
+                                    <option value="molds">Molds</option>
+                                    <option value="tools">Tools</option>
+                                    <option value="decor">Decor</option>
+                                    <option value="essence">Essence</option>
+                                </select>
+                                <label for="filter-stock" class="sr-only">Filter by stock</label>
+                                <select id="filter-stock" class="sort-select !py-2.5">
+                                    <option value="all">All stock</option>
+                                    <option value="low">Low stock</option>
+                                    <option value="out">Out of stock</option>
+                                </select>
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="overflow-x-auto">
-                        <table class="w-full">
+                        <table class="admin-table">
                             <thead>
-                                <tr class="bg-bg-alt text-left">
-                                    <th class="px-6 py-4 text-xs font-bold text-text-muted uppercase tracking-wider">Product</th>
-                                    <th class="px-6 py-4 text-xs font-bold text-text-muted uppercase tracking-wider">Category</th>
-                                    <th class="px-6 py-4 text-xs font-bold text-text-muted uppercase tracking-wider">Price</th>
-                                    <th class="px-6 py-4 text-xs font-bold text-text-muted uppercase tracking-wider">Stock</th>
-                                    <th class="px-6 py-4 text-xs font-bold text-text-muted uppercase tracking-wider text-right">Actions</th>
+                                <tr>
+                                    <th scope="col">Product</th>
+                                    <th scope="col">Category</th>
+                                    <th scope="col">Price</th>
+                                    <th scope="col">Stock</th>
+                                    <th scope="col" class="text-right">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="inventory-table">
                                 <tr>
-                                    <td colspan="5" class="px-6 py-8">
+                                    <td colspan="5" class="!py-10">
                                         <div class="flex items-center justify-center gap-3">
-                                            <div class="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
-                                            <span class="text-text-muted">Loading products...</span>
+                                            <span
+                                                class="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin"></span>
+                                            <span class="text-text-muted text-sm">Loading products…</span>
                                         </div>
                                     </td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
-                </div>
+                </section>
             </div>
         </main>
     </div>
-    
-    <!-- Edit Modal -->
-    <div id="edit-modal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 opacity-0 invisible transition-all duration-300">
-        <div class="absolute inset-0 bg-text/50 backdrop-blur-sm" onclick="closeEditModal()"></div>
-        <div class="relative bg-surface rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto modal-enter">
-            <div class="p-6 border-b border-border flex items-center justify-between">
-                <h3 class="font-serif text-xl font-bold text-text">Edit Product</h3>
-                <button onclick="closeEditModal()" class="p-2 hover:bg-bg-alt rounded-lg transition-colors">
-                    <svg class="w-5 h-5 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+
+    <!-- ========== EDIT MODAL ========== -->
+    <div id="edit-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="edit-title"
+        aria-hidden="true">
+        <div class="absolute inset-0" data-edit-close aria-hidden="true"></div>
+        <div class="modal-content relative !max-w-2xl">
+            <div class="modal-header">
+                <h2 id="edit-title" class="font-serif text-lg font-bold text-text">Edit product</h2>
+                <button type="button" data-edit-close class="icon-btn !w-9 !h-9" aria-label="Close">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
             </div>
-            <form id="edit-form" class="p-6 space-y-4">
-                <input type="hidden" id="edit-id">
-                <div>
-                    <label class="block text-sm font-semibold text-text mb-2">Product Name</label>
-                    <input type="text" id="edit-name" required
-                        class="form-input w-full px-4 py-3 border-2 border-border rounded-xl text-text outline-none">
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-text mb-2">Social Link</label>
-                    <input type="url" id="edit-social" placeholder="https://..."
-                        class="form-input w-full px-4 py-3 border-2 border-border rounded-xl text-text outline-none">
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-semibold text-text mb-2">Price (৳)</label>
-                        <input type="number" id="edit-price" min="0" required
-                            class="form-input w-full px-4 py-3 border-2 border-border rounded-xl text-text outline-none">
+
+            <form id="edit-form" novalidate>
+                <div class="modal-body space-y-5">
+                    <input type="hidden" id="edit-id">
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="form-label" for="edit-name">Product name *</label>
+                            <input type="text" id="edit-name" class="form-input" maxlength="140" required>
+                            <span class="field-error" id="err-edit-name"></span>
+                        </div>
+                        <div>
+                            <label class="form-label" for="edit-category">Category *</label>
+                            <select id="edit-category" class="form-select" required>
+                                <option value="molds">Molds</option>
+                                <option value="tools">Tools</option>
+                                <option value="decor">Decor</option>
+                                <option value="essence">Essence</option>
+                            </select>
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-sm font-semibold text-text mb-2">Stock</label>
-                        <input type="number" id="edit-stock" min="0" required
-                            class="form-input w-full px-4 py-3 border-2 border-border rounded-xl text-text outline-none">
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="form-label" for="edit-price">Price (৳) *</label>
+                            <input type="number" id="edit-price" class="form-input" min="0" step="1" required>
+                            <span class="field-error" id="err-edit-price"></span>
+                        </div>
+                        <div>
+                            <label class="form-label" for="edit-stock">Stock *</label>
+                            <input type="number" id="edit-stock" class="form-input" min="0" step="1" required>
+                            <span class="field-error" id="err-edit-stock"></span>
+                        </div>
                     </div>
+
+                    <div>
+                        <label class="form-label" for="edit-desc">Description *</label>
+                        <textarea id="edit-desc" rows="4" class="form-textarea" maxlength="4000" required></textarea>
+                        <span class="field-error" id="err-edit-desc"></span>
+                    </div>
+
+                    <div>
+                        <label class="form-label" for="edit-social">Social post link</label>
+                        <input type="url" id="edit-social" class="form-input" placeholder="https://…" maxlength="400">
+                        <span class="field-error" id="err-edit-social"></span>
+                    </div>
+
+                    <div>
+                        <div class="flex items-end justify-between gap-3 mb-2">
+                            <label class="form-label !mb-0" for="edit-image">Photos *</label>
+                            <span class="text-[11px] font-semibold text-text-muted" id="edit-image-count">0 / 6</span>
+                        </div>
+                        <div class="file-upload mb-3">
+                            <input type="file" id="edit-image" accept="image/png,image/jpeg,image/webp,image/gif"
+                                multiple>
+                            <label for="edit-image" id="edit-file-label" class="file-upload-label !min-h-[76px]">
+                                <span class="text-sm font-semibold text-text-secondary">+ Add more photos</span>
+                                <span class="text-[11px] text-text-muted mt-1">max 8MB each</span>
+                            </label>
+                        </div>
+                        <div class="img-manager" id="edit-image-manager"></div>
+                        <span class="field-error" id="err-edit-image"></span>
+                    </div>
+
+                    <div>
+                        <div class="flex items-end justify-between gap-3 mb-2">
+                            <label class="form-label !mb-0">Colour options</label>
+                            <button type="button" id="edit-add-color" class="btn btn-secondary btn-sm">+ Add
+                                colour</button>
+                        </div>
+                        <div class="color-rows" id="edit-colors"></div>
+                        <span class="field-error" id="err-edit-colors"></span>
+                    </div>
+
+                    <label class="switch">
+                        <input type="checkbox" id="edit-featured">
+                        <span class="track" aria-hidden="true"></span>
+                        <span>Show in the “Trending right now” rail</span>
+                    </label>
                 </div>
-                <div class="flex gap-3 pt-4">
-                    <button type="button" onclick="closeEditModal()" class="flex-1 py-3 border-2 border-border rounded-xl font-semibold text-text-secondary hover:border-text hover:text-text transition-colors">
-                        Cancel
-                    </button>
-                    <button type="submit" class="flex-1 py-3 bg-primary text-white rounded-xl font-semibold hover:bg-primary-dark transition-colors">
-                        Save Changes
+
+                <div class="modal-footer">
+                    <button type="button" data-edit-close class="btn btn-secondary flex-1">Cancel</button>
+                    <button type="submit" id="edit-submit" class="btn btn-primary flex-1">
+                        <span id="edit-submit-label">Save changes</span>
                     </button>
                 </div>
             </form>
         </div>
     </div>
-    
-    <!-- Delete Modal -->
-    <div id="delete-modal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 opacity-0 invisible transition-all duration-300">
-        <div class="absolute inset-0 bg-text/50 backdrop-blur-sm" onclick="closeDeleteModal()"></div>
-        <div class="relative bg-surface rounded-2xl shadow-2xl p-6 max-w-sm w-full text-center modal-enter">
-            <div class="w-16 h-16 mx-auto mb-4 bg-error/10 rounded-full flex items-center justify-center">
-                <svg class="w-8 h-8 text-error" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+
+    <!-- ========== DELETE MODAL ========== -->
+    <div id="delete-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="delete-title"
+        aria-hidden="true">
+        <div class="absolute inset-0" data-delete-close aria-hidden="true"></div>
+        <div class="modal-content relative !max-w-sm p-6 text-center">
+            <div class="w-16 h-16 mx-auto mb-4 bg-error-light rounded-full flex items-center justify-center">
+                <svg width="18" height="18" class="w-8 h-8 text-error-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                 </svg>
             </div>
-            <h3 class="font-serif text-xl font-bold text-text mb-2">Delete Product?</h3>
-            <p class="text-sm text-text-muted mb-6">This action cannot be undone. The product will be permanently removed from your inventory.</p>
+            <h2 id="delete-title" class="font-serif text-lg font-bold text-text mb-2">Delete this product?</h2>
+            <p class="text-sm text-text-muted mb-1" id="delete-name"></p>
+            <p class="text-xs text-text-muted mb-6">This cannot be undone. The product will disappear from the shop
+                immediately.</p>
             <div class="flex gap-3">
-                <button onclick="closeDeleteModal()" class="flex-1 py-3 border-2 border-border rounded-xl font-semibold text-text-secondary hover:border-text hover:text-text transition-colors">
-                    Cancel
-                </button>
-                <button onclick="confirmDelete()" class="flex-1 py-3 bg-error text-white rounded-xl font-semibold hover:bg-error/90 transition-colors">
-                    Delete
-                </button>
+                <button type="button" data-delete-close class="btn btn-secondary flex-1">Cancel</button>
+                <button type="button" id="confirm-delete-btn"
+                    class="btn flex-1 !bg-error !text-white hover:!brightness-95">Delete</button>
             </div>
         </div>
     </div>
-    
-    <div id="toast-container" class="fixed bottom-6 right-6 z-[200] flex flex-col gap-3"></div>
-    
+
+    <div id="toast-container" role="status" aria-live="polite"></div>
+
     <script type="module" src="js/auth_guard.js"></script>
+    <script type="module" src="js/admin-shell.js"></script>
     <script type="module" src="js/admin.js"></script>
 </body>
+
 </html>

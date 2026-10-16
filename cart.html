@@ -1,197 +1,279 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shopping Cart - Jannat Baking</title>
+    <meta name="theme-color" content="#FFFBF7">
+    <title>Cart &amp; Checkout — Jannat Baking Tools</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <meta name="description" content="Review your basket and place your Jannat Baking Tools order with cash on delivery.">
+    <meta name="robots" content="noindex">
+
+    <link rel="preconnect" href="https://res.cloudinary.com" crossorigin>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;1,400;1,600&display=swap"
+        rel="stylesheet">
+
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: { DEFAULT: '#E85A4F', dark: '#C94A40', light: '#F5A5A0', subtle: '#FEF2F1' },
-                        secondary: { DEFAULT: '#D4A574', dark: '#B88B5E', light: '#E8D4BC' },
-                        accent: { DEFAULT: '#4A90A4', light: '#E8F4F7' },
-                        surface: '#FFFFFF',
-                        background: '#FFFBF7',
-                        'bg-alt': '#FDF8F3',
-                        border: '#F0E6DC',
-                        text: { DEFAULT: '#2D2420', secondary: '#6B5B52', muted: '#A89B93' },
-                        success: { DEFAULT: '#22C55E', light: '#DCFCE7' },
-                        warning: { DEFAULT: '#F59E0B', light: '#FEF3C7' },
-                        error: { DEFAULT: '#EF4444', light: '#FEE2E2' }
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'system-ui', 'sans-serif'],
-                        serif: ['Playfair Display', 'Georgia', 'serif'],
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        .bg-pattern {
-            background-image: 
-                radial-gradient(circle at 20% 80%, rgba(232, 90, 79, 0.06) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(212, 165, 116, 0.08) 0%, transparent 50%);
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, #E85A4F 0%, #C94A40 100%);
-            transition: all 0.2s ease;
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(232, 90, 79, 0.4);
-        }
-        
-        .cart-item {
-            animation: itemEnter 0.3s ease-out;
-        }
-        
-        @keyframes itemEnter {
-            from { opacity: 0; transform: translateX(-20px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-        
-        .qty-btn {
-            transition: all 0.2s ease;
-        }
-        
-        .qty-btn:hover {
-            background: #E85A4F;
-            color: white;
-            border-color: #E85A4F;
-        }
-    </style>
+    <script src="js/theme.js"></script>
+    <link rel="stylesheet" href="css/styles.css">
 </head>
-<body class="bg-background text-text font-sans min-h-screen bg-pattern">
-    
-    <!-- Navigation -->
-    <nav class="sticky top-0 z-50 glass border-b border-border">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16 md:h-20">
-                <a href="index.html" class="flex flex-col group">
-                    <h1 class="font-serif text-xl md:text-2xl font-bold text-text leading-tight">
+
+<body class="page-shell bg-background text-text font-sans min-h-screen bg-pattern antialiased">
+
+    <noscript>
+        <div style="padding:1rem;text-align:center;background:#FEF3C7;color:#92400E;font-weight:600">
+            Please enable JavaScript to use the cart and checkout.
+        </div>
+    </noscript>
+
+    <!-- ========== HEADER ========== -->
+    <header class="site-header glass">
+        <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between gap-4 h-16 md:h-20">
+                <a href="index.html" class="flex flex-col group shrink-0" aria-label="Jannat Baking Tools home">
+                    <span class="font-serif text-xl md:text-2xl font-bold text-text leading-none">
                         <span class="text-primary italic">Jannat</span> Baking
-                    </h1>
-                    <span class="text-[10px] md:text-xs text-text-muted tracking-[0.2em] uppercase font-semibold mt-0.5">
-                        Tools & Home Decor
+                    </span>
+                    <span
+                        class="text-[9px] md:text-[10px] text-text-muted tracking-[0.22em] uppercase font-bold mt-1 group-hover:text-primary transition-colors">
+                        Tools &amp; Home Decor
                     </span>
                 </a>
-                
-                <a href="index.html" class="flex items-center gap-2 text-sm font-medium text-text-secondary hover:text-primary transition-colors group">
-                    <svg class="w-5 h-5 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-                    </svg>
-                    <span class="hidden sm:inline">Continue Shopping</span>
-                </a>
+
+                <nav class="flex items-center gap-2" aria-label="Utility">
+                    <a href="index.html#products-section" class="nav-link">
+                        <svg width="18" height="18" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                        </svg>
+                        <span class="hidden sm:inline">Continue shopping</span>
+                    </a>
+                    <button type="button" class="icon-btn" data-wishlist-trigger aria-label="Open wishlist">
+                        <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                        </svg>
+                        <span class="icon-badge" data-badge="wishlist">0</span>
+                    </button>
+                </nav>
             </div>
         </div>
-    </nav>
-    
-    <!-- Main Content -->
-    <main class="px-4 py-8 md:py-12">
-        <div class="max-w-6xl mx-auto">
-            
-            <h2 class="font-serif text-3xl md:text-4xl font-bold text-text mb-8">
-                Shopping <span class="text-primary italic">Cart</span>
-            </h2>
-            
-            <div class="grid lg:grid-cols-3 gap-8">
-                <!-- Cart Items -->
-                <div class="lg:col-span-2">
-                    <div id="cart-items" class="space-y-4">
-                        <!-- Empty state -->
-                        <div class="bg-surface rounded-2xl border border-border p-12 text-center">
-                            <div class="w-24 h-24 mx-auto mb-6 bg-bg-alt rounded-full flex items-center justify-center">
-                                <svg class="w-12 h-12 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
-                                </svg>
-                            </div>
-                            <h3 class="font-serif text-xl font-bold text-text mb-2">Your cart is empty</h3>
-                            <p class="text-text-muted mb-6">Looks like you haven't added anything yet.</p>
-                            <a href="index.html" class="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white font-semibold rounded-xl hover:bg-primary-dark transition-colors">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
-                                </svg>
-                                Start Shopping
-                            </a>
-                        </div>
-                    </div>
+    </header>
+
+    <main class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+
+        <!-- ========== SUCCESS ========== -->
+        <section id="order-success" class="hidden max-w-xl mx-auto">
+            <div class="panel p-8 md:p-10 text-center">
+                <div
+                    class="w-20 h-20 mx-auto mb-6 bg-success-light rounded-full flex items-center justify-center checkmark-animate">
+                    <svg width="18" height="18" class="w-10 h-10 text-success-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                        aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+                    </svg>
                 </div>
-                
-                <!-- Order Summary -->
-                <div class="lg:col-span-1">
-                    <div class="bg-surface rounded-2xl border border-border p-6 sticky top-24">
-                        <h3 class="font-serif text-xl font-bold text-text mb-6">Order Summary</h3>
-                        
-                        <div class="space-y-3 mb-6">
-                            <div class="flex justify-between text-text-secondary">
-                                <span>Subtotal</span>
-                                <span id="subtotal" class="font-medium text-text">৳ 0</span>
-                            </div>
-                            <div class="flex justify-between text-text-secondary">
-                                <span>Shipping</span>
-                                <span class="text-success font-medium">Free</span>
-                            </div>
-                            <div class="flex justify-between text-text-secondary">
-                                <span>Tax</span>
-                                <span class="font-medium text-text">৳ 0</span>
-                            </div>
-                        </div>
-                        
-                        <div class="border-t border-border pt-4 mb-6">
-                            <div class="flex justify-between items-center">
-                                <span class="font-semibold text-text">Total</span>
-                                <span id="total" class="font-serif text-3xl font-bold text-primary">৳ 0</span>
-                            </div>
-                        </div>
-                        
-                        <a href="index.html#cart" class="btn-primary w-full py-4 text-white font-bold rounded-xl flex items-center justify-center gap-2">
-                            <span>Proceed to Checkout</span>
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
-                            </svg>
-                        </a>
-                        
-                        <div class="mt-6 flex items-center justify-center gap-4 text-text-muted">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-                            </svg>
-                            <span class="text-xs">Secure checkout</span>
-                        </div>
+                <h1 class="font-serif text-3xl font-bold text-text mb-2">Order placed!</h1>
+                <p class="text-text-secondary mb-6">
+                    Thank you for shopping with Jannat Baking Tools. We'll call you shortly to confirm.
+                </p>
+
+                <div class="bg-bg-alt border border-border rounded-2xl p-5 mb-6 text-left">
+                    <p class="text-[11px] font-bold uppercase tracking-[0.12em] text-text-muted mb-1">Your order code
+                    </p>
+                    <div class="flex items-center justify-between gap-3">
+                        <p class="font-mono text-2xl font-bold text-primary" id="success-code">—</p>
+                        <button type="button" id="copy-code" class="btn btn-secondary btn-sm">Copy</button>
                     </div>
+                    <hr class="divider my-4">
+                    <div class="sum-row !py-1"><span>Items</span><span class="font-semibold text-text"
+                            id="success-items">0</span></div>
+                    <div class="sum-row !py-1"><span>Amount payable on delivery</span><span
+                            class="font-bold text-text" id="success-total">৳ 0</span></div>
+                </div>
+
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <a href="track.html" class="btn btn-primary flex-1">Track this order</a>
+                    <a href="index.html" class="btn btn-secondary flex-1">Continue shopping</a>
                 </div>
             </div>
-            
+        </section>
+
+        <!-- ========== EMPTY ========== -->
+        <section id="cart-empty" class="hidden max-w-xl mx-auto">
+            <div class="panel p-10 md:p-16 text-center">
+                <div class="empty-state-icon">
+                    <svg width="18" height="18" class="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                            d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                    </svg>
+                </div>
+                <h1 class="font-serif text-2xl font-bold text-text mb-2">Your cart is empty</h1>
+                <p class="text-sm text-text-muted mb-6">Browse the collection and add a few baking essentials.</p>
+                <a href="index.html#products-section" class="btn btn-primary">Start shopping</a>
+            </div>
+        </section>
+
+        <!-- ========== CART + CHECKOUT ========== -->
+        <div id="cart-layout" class="hidden">
+            <div class="mb-8">
+                <nav class="breadcrumbs mb-3" aria-label="Breadcrumb">
+                    <a href="index.html" class="hover:text-primary transition-colors">Home</a>
+                    <span class="sep" aria-hidden="true">/</span>
+                    <span class="text-text-secondary font-semibold" aria-current="page">Cart &amp; checkout</span>
+                </nav>
+                <h1 class="font-serif text-3xl md:text-4xl font-bold text-text">
+                    Your <span class="text-primary italic">basket</span>
+                </h1>
+                <p class="text-sm text-text-muted mt-1" id="cart-headline">0 items</p>
+            </div>
+
+            <div class="grid lg:grid-cols-5 gap-8">
+
+                <!-- Lines -->
+                <section class="lg:col-span-3" aria-label="Cart items">
+                    <div id="cart-lines" class="space-y-3"></div>
+
+                    <div class="flex items-center justify-between mt-5">
+                        <a href="index.html#products-section"
+                            class="text-sm font-semibold text-primary hover:text-primary-dark transition-colors">&larr;
+                            Add more items</a>
+                        <button type="button" id="clear-cart"
+                            class="text-xs font-semibold text-text-muted hover:text-error transition-colors">Clear
+                            cart</button>
+                    </div>
+                </section>
+
+                <!-- Summary + checkout -->
+                <section class="lg:col-span-2" aria-label="Order summary and checkout">
+                    <div class="panel p-5 md:p-6 lg:sticky lg:top-28">
+                        <h2 class="font-serif text-xl font-bold text-text mb-4">Order summary</h2>
+
+                        <div class="mb-5">
+                            <div class="sum-row"><span>Subtotal (<span id="sum-items">0</span> items)</span><span
+                                    class="font-semibold text-text" id="sum-subtotal">৳ 0</span></div>
+                            <div class="sum-row"><span>Delivery</span><span class="font-semibold text-text"
+                                    id="sum-delivery">৳ 0</span></div>
+                            <div class="sum-row total"><span>Total</span><span class="amount"
+                                    id="sum-total">৳ 0</span></div>
+                        </div>
+
+                        <form id="checkout-form" class="space-y-4" novalidate>
+                            <h3 class="font-sans text-xs font-bold uppercase tracking-[0.12em] text-text-muted">
+                                Delivery details</h3>
+
+                            <div>
+                                <label class="form-label" for="cust-name">Full name</label>
+                                <input type="text" id="cust-name" class="form-input" placeholder="e.g. Rahim Uddin"
+                                    autocomplete="name" maxlength="80" required>
+                                <span class="field-error" id="err-name"></span>
+                            </div>
+
+                            <div>
+                                <label class="form-label" for="cust-phone">Mobile number</label>
+                                <input type="tel" id="cust-phone" class="form-input" placeholder="01712345678"
+                                    autocomplete="tel" inputmode="numeric" maxlength="20" required>
+                                <span class="field-error" id="err-phone"></span>
+                            </div>
+
+                            <div>
+                                <label class="form-label" for="cust-address">Delivery address</label>
+                                <textarea id="cust-address" rows="3" class="form-textarea"
+                                    placeholder="House / road / area, city" autocomplete="street-address"
+                                    maxlength="300" required></textarea>
+                                <span class="field-error" id="err-address"></span>
+                            </div>
+
+                            <div>
+                                <label class="form-label" for="delivery-location">Delivery zone</label>
+                                <div class="relative">
+                                    <select id="delivery-location" class="form-select appearance-none pr-10">
+                                        <option value="Inside CTG">Inside Chittagong — ৳80</option>
+                                        <option value="Outside CTG">Outside Chittagong — ৳150</option>
+                                    </select>
+                                    <span
+                                        class="absolute inset-y-0 right-3 flex items-center pointer-events-none text-text-muted">
+                                        <svg width="18" height="18" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                            aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </span>
+                                </div>
+                                <p class="text-[11px] text-text-muted mt-2 flex items-start gap-1.5">
+                                    <svg width="18" height="18" class="w-3.5 h-3.5 text-warning shrink-0 mt-0.5" fill="none"
+                                        stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    Parcels over 1&nbsp;KG add ৳20 per extra kilogram, collected by the courier.
+                                </p>
+                            </div>
+
+                            <div>
+                                <label class="form-label" for="order-notes">Order notes <span
+                                        class="font-normal text-text-muted">(optional)</span></label>
+                                <textarea id="order-notes" rows="2" class="form-textarea order-note"
+                                    placeholder="Gift wrap, preferred delivery time, colour preference…"
+                                    maxlength="500"></textarea>
+                            </div>
+
+                            <div
+                                class="p-4 bg-bg-alt rounded-xl border border-border flex items-center justify-between gap-3">
+                                <span class="text-sm font-semibold text-text-secondary">Payment</span>
+                                <span class="font-bold text-primary flex items-center gap-2 text-sm">
+                                    <svg width="18" height="18" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                        aria-hidden="true">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                                    </svg>
+                                    Cash on Delivery
+                                </span>
+                            </div>
+
+                            <button type="submit" id="place-order-btn" class="btn btn-primary btn-lg w-full">
+                                <span id="place-order-label">Place order</span>
+                                <svg width="18" height="18" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                    aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                                </svg>
+                            </button>
+
+                            <p class="text-[11px] text-text-muted text-center">
+                                By placing this order you agree to pay the total amount in cash when your parcel is
+                                delivered.
+                            </p>
+                        </form>
+                    </div>
+                </section>
+            </div>
         </div>
     </main>
-    
-    <!-- Footer -->
-    <footer class="bg-surface border-t border-border py-8 px-4 mt-auto">
-        <div class="max-w-7xl mx-auto text-center">
-            <p class="text-sm text-text-muted">
-                &copy; 2026 Jannat Baking Tools. All rights reserved.
-            </p>
+
+    <!-- ========== FOOTER ========== -->
+    <footer class="bg-surface border-t border-border py-10 px-4 mt-8">
+        <div
+            class="max-w-8xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
+            <div>
+                <p class="font-serif text-lg font-bold"><span class="text-primary italic">Jannat</span> Baking</p>
+                <p class="text-xs text-text-muted">&copy; 2026 Jannat Baking Tools. All rights reserved.</p>
+            </div>
+            <nav class="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm" aria-label="Footer">
+                <a href="index.html" class="text-text-secondary hover:text-primary transition-colors">Shop</a>
+                <a href="track.html" class="text-text-secondary hover:text-primary transition-colors">Track Order</a>
+                <a href="https://wa.me/8801874244466" target="_blank" rel="noopener noreferrer"
+                    class="text-text-secondary hover:text-primary transition-colors">WhatsApp</a>
+            </nav>
         </div>
     </footer>
-    
-    <script>
-        // This page serves as a standalone cart view
-        // The actual cart functionality is in index.html
-        // Users are redirected to index.html with cart open for full functionality
-        
-        document.addEventListener('DOMContentLoaded', () => {
-            // Redirect to main shop with cart open
-            // window.location.href = 'index.html';
-        });
-    </script>
+
+    <script type="module" src="js/cart.js"></script>
+    <script type="module" src="js/chatbot.js"></script>
 </body>
+
 </html>
+

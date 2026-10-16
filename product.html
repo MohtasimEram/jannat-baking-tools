@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FFFBF7">
+    <title>Product — Jannat Baking Tools</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <meta name="description" content="Product details at Jannat Baking Tools — premium baking essentials with fast delivery across Bangladesh.">
+
+    <meta property="og:site_name" content="Jannat Baking Tools">
+    <meta property="og:locale" content="en_BD">
+    <meta property="og:type" content="product">
+    <meta property="og:image" content="https://jannatbakingtools.vercel.app/assets/og-default.jpg">
+    <meta name="twitter:card" content="summary_large_image">
+
+    <link rel="preconnect" href="https://res.cloudinary.com" crossorigin>
+    <link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;1,400;1,600&display=swap"
+        rel="stylesheet">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="js/theme.js"></script>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body class="page-shell bg-background text-text font-sans min-h-screen bg-pattern antialiased">
+
+    <noscript>
+        <div style="padding:1rem;text-align:center;background:#FEF3C7;color:#92400E;font-weight:600">
+            Please enable JavaScript to view this product.
+        </div>
+    </noscript>
+
+    <!-- ========== HEADER ========== -->
+    <header class="site-header glass">
+        <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between gap-4 h-16 md:h-20">
+                <a href="index.html" class="flex flex-col group shrink-0" aria-label="Jannat Baking Tools home">
+                    <span class="font-serif text-xl md:text-2xl font-bold text-text leading-none">
+                        <span class="text-primary italic">Jannat</span> Baking
+                    </span>
+                    <span
+                        class="text-[9px] md:text-[10px] text-text-muted tracking-[0.22em] uppercase font-bold mt-1 group-hover:text-primary transition-colors">
+                        Tools &amp; Home Decor
+                    </span>
+                </a>
+
+                <nav class="flex items-center gap-1 md:gap-2 shrink-0" aria-label="Utility">
+                    <a href="index.html#products-section" class="nav-link hidden md:inline-flex">Shop</a>
+                    <a href="track.html" class="nav-link hidden md:inline-flex">Track Order</a>
+
+                    <button type="button" class="icon-btn" data-wishlist-trigger aria-label="Open wishlist">
+                        <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                        </svg>
+                        <span class="icon-badge" data-badge="wishlist">0</span>
+                    </button>
+
+                    <button type="button" class="icon-btn" data-cart-trigger aria-label="Open cart">
+                        <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                        </svg>
+                        <span class="icon-badge" data-badge="cart">0</span>
+                    </button>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">
+
+        <!-- ========== LOADING ========== -->
+        <div id="pd-loading">
+            <div class="skeleton h-3 w-56 rounded mb-6"></div>
+            <div class="grid lg:grid-cols-2 gap-8 lg:gap-12">
+                <div>
+                    <div class="skeleton rounded-4xl" style="aspect-ratio:1/1"></div>
+                    <div class="flex gap-2 mt-3">
+                        <div class="skeleton w-[68px] h-[68px] rounded-xl"></div>
+                        <div class="skeleton w-[68px] h-[68px] rounded-xl"></div>
+                        <div class="skeleton w-[68px] h-[68px] rounded-xl"></div>
+                    </div>
+                </div>
+                <div class="space-y-4 pt-2">
+                    <div class="skeleton h-3 w-24 rounded"></div>
+                    <div class="skeleton h-8 w-4/5 rounded"></div>
+                    <div class="skeleton h-6 w-32 rounded"></div>
+                    <div class="skeleton h-20 w-full rounded-xl"></div>
+                    <div class="skeleton h-12 w-full rounded-xl"></div>
+                    <div class="skeleton h-12 w-full rounded-xl"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== NOT FOUND ========== -->
+        <div id="pd-notfound" class="hidden">
+            <div class="panel p-10 md:p-16 text-center max-w-xl mx-auto">
+                <div class="empty-state-icon">
+                    <svg width="18" height="18" class="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                            d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <h1 class="font-serif text-2xl font-bold text-text mb-2">Product not found</h1>
+                <p class="text-sm text-text-muted mb-6" id="pd-notfound-msg">
+                    This product may have been removed or the link is incorrect.
+                </p>
+                <div class="flex flex-wrap items-center justify-center gap-3">
+                    <a href="index.html" class="btn btn-primary">Browse the shop</a>
+                    <a href="https://wa.me/8801874244466" target="_blank" rel="noopener noreferrer"
+                        class="btn btn-secondary">Ask on WhatsApp</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== PRODUCT ========== -->
+        <div id="pd-content" class="hidden">
+
+            <nav class="breadcrumbs mb-5" id="pd-breadcrumbs" aria-label="Breadcrumb"></nav>
+
+            <div class="grid lg:grid-cols-2 gap-8 lg:gap-12 items-start">
+
+                <!-- Gallery -->
+                <section aria-label="Product images" class="lg:sticky lg:top-28">
+                    <div class="gallery-main">
+                        <img id="gallery-main-img" src="" alt="" width="900" height="900" decoding="async">
+                        <button type="button" class="gallery-nav prev hidden" id="gallery-prev"
+                            aria-label="Previous image">
+                            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </button>
+                        <button type="button" class="gallery-nav next hidden" id="gallery-next"
+                            aria-label="Next image">
+                            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 5l7 7-7 7" />
+                            </svg>
+                        </button>
+                        <span class="gallery-counter hidden" id="gallery-counter">1 / 1</span>
+                        <button type="button" id="gallery-zoom"
+                            class="absolute bottom-3 left-3 z-10 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface/90 backdrop-blur text-xs font-bold text-text-secondary shadow-md hover:text-primary transition-colors"
+                            aria-label="Open image full screen">
+                            <svg width="18" height="18" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m-3-3h6" />
+                            </svg>
+                            Zoom
+                        </button>
+                    </div>
+                    <div class="gallery-thumbs mt-3" id="gallery-thumbs" role="list"></div>
+                </section>
+
+                <!-- Details -->
+                <section aria-label="Product details" class="min-w-0">
+                    <p class="product-cat mb-2" id="pd-category"></p>
+                    <h1 class="font-serif text-2xl md:text-4xl font-bold text-text leading-tight mb-3 wrap-anywhere break-words min-w-0"
+                        id="pd-name"></h1>
+
+                    <div class="flex items-center flex-wrap gap-3 mb-5">
+                        <span class="text-3xl font-extrabold text-primary" id="pd-price"></span>
+                        <span class="badge" id="pd-stock"></span>
+                    </div>
+
+                    <p class="text-sm md:text-[0.95rem] text-text-secondary leading-relaxed mb-6 wrap-anywhere break-words min-w-0"
+                        id="pd-short"></p>
+
+                    <!-- Colours -->
+                    <div class="mb-6 hidden" id="pd-colors-wrap">
+                        <p class="text-xs font-bold uppercase tracking-[0.12em] text-text-muted mb-2">
+                            Colour <span class="text-primary">*</span><span id="pd-color-selected"
+                                class="font-semibold normal-case tracking-normal text-text-secondary"></span>
+                        </p>
+                        <div class="color-options" id="pd-colors" role="radiogroup" aria-label="Choose a colour"></div>
+                        <span class="field-error" id="pd-color-error"></span>
+                    </div>
+
+                    <!-- Quantity -->
+                    <div class="mb-6">
+                        <p class="text-xs font-bold uppercase tracking-[0.12em] text-text-muted mb-2">Quantity</p>
+                        <div class="flex items-center gap-3 flex-wrap">
+                            <div class="qty-stepper" role="group" aria-label="Quantity">
+                                <button type="button" id="qty-dec" aria-label="Decrease quantity">&minus;</button>
+                                <span class="qty-value" id="qty-val" aria-live="polite">1</span>
+                                <button type="button" id="qty-inc" aria-label="Increase quantity">+</button>
+                            </div>
+                            <span class="text-xs text-text-muted" id="pd-stock-note"></span>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex flex-col sm:flex-row gap-3 mb-4">
+                        <button type="button" class="btn btn-primary btn-lg flex-1" id="pd-add">
+                            <svg width="18" height="18" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                            </svg>
+                            <span>Add to Cart</span>
+                        </button>
+                        <button type="button" class="btn btn-secondary btn-lg flex-1" id="pd-buy">Buy it now</button>
+                    </div>
+
+                    <div class="flex items-center gap-2 mb-7">
+                        <button type="button" class="btn btn-ghost btn-sm" id="pd-wish" aria-pressed="false">
+                            <svg width="18" height="18" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                            </svg>
+                            <span id="pd-wish-label">Save</span>
+                        </button>
+                        <button type="button" class="btn btn-ghost btn-sm" id="pd-share">
+                            <svg width="18" height="18" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                            </svg>
+                            Share
+                        </button>
+                        <a href="https://wa.me/8801874244466" target="_blank" rel="noopener noreferrer"
+                            class="btn btn-ghost btn-sm !text-success" id="pd-whatsapp">
+                            <svg width="18" height="18" class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                <path
+                                    d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
+                            </svg>
+                            Ask
+                        </a>
+                    </div>
+
+                    <!-- Delivery assurances -->
+                    <div class="panel p-4 mb-6 grid sm:grid-cols-2 gap-3 text-xs font-semibold text-text-secondary">
+                        <div class="flex items-center gap-2">
+                            <svg width="18" height="18" class="w-4 h-4 text-primary shrink-0" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                            </svg>
+                            Inside Chittagong ৳80 delivery
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <svg width="18" height="18" class="w-4 h-4 text-primary shrink-0" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 10h18M3 10l2-5h14l2 5M5 10v9a1 1 0 001 1h12a1 1 0 001-1v-9" />
+                            </svg>
+                            Outside Chittagong ৳150 delivery
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <svg width="18" height="18" class="w-4 h-4 text-primary shrink-0" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                            </svg>
+                            Cash on delivery
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <svg width="18" height="18" class="w-4 h-4 text-primary shrink-0" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            Checked before dispatch
+                        </div>
+                    </div>
+
+                    <!-- Accordions -->
+                    <div class="panel px-4 md:px-5 divide-y-0">
+                        <div class="acc-item open" data-acc>
+                            <button type="button" class="acc-trigger" aria-expanded="true">
+                                Product details
+                                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+                            <div class="acc-panel">
+                                <div class="prose-desc break-words min-w-0" id="pd-desc"></div>
+                                <div class="mt-4 hidden" id="pd-social-wrap">
+                                    <a href="#" id="pd-social" target="_blank" rel="noopener noreferrer nofollow"
+                                        class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-accent-light text-accent-dark text-sm font-bold hover:brightness-95 transition-all">
+                                        <span id="pd-social-icon"></span>
+                                        <span id="pd-social-text">View post</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="acc-item" data-acc>
+                            <button type="button" class="acc-trigger" aria-expanded="false">
+                                Delivery &amp; payment
+                                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+                            <div class="acc-panel">
+                                <ul class="space-y-2 list-disc pl-5">
+                                    <li>Inside Chittagong: ৳80 — usually delivered within 24–48 hours.</li>
+                                    <li>Outside Chittagong: ৳150 — usually delivered within 2–3 working days.</li>
+                                    <li>Parcels over 1&nbsp;KG add ৳20 per extra kilogram.</li>
+                                    <li>Payment is cash on delivery — pay the courier when your parcel arrives.</li>
+                                    <li>Track your order anytime from the <a href="track.html">Track Order</a> page.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="acc-item" data-acc>
+                            <button type="button" class="acc-trigger" aria-expanded="false">
+                                Care &amp; returns
+                                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+                            <div class="acc-panel">
+                                <ul class="space-y-2 list-disc pl-5">
+                                    <li>Wash silicone and plastic items with warm soapy water before first use.</li>
+                                    <li>Avoid sharp blades on silicone molds to keep the surface smooth.</li>
+                                    <li>Damaged or wrong items are replaced — contact us on WhatsApp within 24 hours of
+                                        delivery with a photo.</li>
+                                    <li>Colour shades may vary slightly between production batches.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Related -->
+            <section class="mt-16 hidden" id="related-section" aria-labelledby="related-heading">
+                <div class="section-head">
+                    <div>
+                        <p class="eyebrow mb-1">You may also like</p>
+                        <h2 id="related-heading" class="font-serif text-2xl font-bold">Pairs well with this</h2>
+                    </div>
+                    <a href="index.html#products-section"
+                        class="text-sm font-semibold text-primary hover:text-primary-dark transition-colors">Shop all
+                        &rarr;</a>
+                </div>
+                <div class="product-grid" id="related-grid"></div>
+            </section>
+        </div>
+    </main>
+
+    <!-- ========== STICKY BUY BAR (mobile) ========== -->
+    <div class="buy-bar" id="buybar">
+        <div class="min-w-0 flex-1">
+            <p class="text-[11px] font-bold uppercase tracking-wider text-text-muted truncate" id="buybar-name"></p>
+            <p class="text-lg font-extrabold text-primary leading-tight" id="buybar-price"></p>
+        </div>
+        <button type="button" class="btn btn-primary" id="buybar-add">
+            <svg width="18" height="18" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+            </svg>
+            Add to Cart
+        </button>
+    </div>
+
+    <!-- ========== LIGHTBOX ========== -->
+    <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Product image" aria-hidden="true">
+        <button type="button" class="lightbox-close" id="lightbox-close" aria-label="Close image">
+            <svg width="18" height="18" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
+        <img id="lightbox-img" src="" alt="">
+    </div>
+
+    <!-- ========== FOOTER ========== -->
+    <footer class="bg-surface border-t border-border py-10 px-4 mt-8">
+        <div class="max-w-8xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
+            <div>
+                <p class="font-serif text-lg font-bold"><span class="text-primary italic">Jannat</span> Baking</p>
+                <p class="text-xs text-text-muted">&copy; 2026 Jannat Baking Tools. All rights reserved.</p>
+            </div>
+            <nav class="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm" aria-label="Footer">
+                <a href="index.html" class="text-text-secondary hover:text-primary transition-colors">Shop</a>
+                <a href="cart.html" class="text-text-secondary hover:text-primary transition-colors">Cart</a>
+                <a href="track.html" class="text-text-secondary hover:text-primary transition-colors">Track Order</a>
+                <a href="https://wa.me/8801874244466" target="_blank" rel="noopener noreferrer"
+                    class="text-text-secondary hover:text-primary transition-colors">WhatsApp</a>
+            </nav>
+        </div>
+    </footer>
+
+    <script type="module" src="js/product.js"></script>
+    <script type="module" src="js/chatbot.js"></script>
+</body>
+
+</html>
+

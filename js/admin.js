@@ -1,418 +1,975 @@
-// ========================================
-// JANNAT BAKING TOOLS - ADMIN JS
-// Product management with Firebase
-// ========================================
+// ========================================================================
+// JANNAT BAKING TOOLS 2.0 — ADMIN PRODUCT MANAGER
+// Multi-image uploads, colour options and full product editing.
+// ========================================================================
 
-import { 
+import {
     db,
-    storage,
-    collection, 
-    doc, 
-    addDoc, 
-    getDocs, 
-    updateDoc, 
-    deleteDoc,
-    ref, 
-    uploadBytes, 
-    getDownloadURL 
-} from "./firebase.js";
+    collection,
+    doc,
+    addDoc,
+    getDocs,
+    updateDoc,
+    deleteDoc
+} from './firebase.js';
+import {
+    CATEGORIES,
+    normalizeProduct,
+    escapeHtml,
+    escapeAttr,
+    formatBDT,
+    safeImage,
+    responsiveImgAttrs,
+    safeUrl,
+    sanitizeText,
+    categoryLabel
+} from './store.js';
+import { showToast } from './ui.js';
+import { compressImage, formatBytes } from './image-compress.js';
 
-// ========================================
-// STATE
-// ========================================
+/* ------------------------------------------------------------------ */
+/* Config                                                             */
+/* ------------------------------------------------------------------ */
+
+const CLOUDINARY_URL = 'https://api.cloudinary.com/v1_1/dgsckxyw8/image/upload';
+const CLOUDINARY_PRESET = 'gjzwfzxc';
+
+const MAX_IMAGES = 6;
+// Raw phone photos can be large; they are compressed in the browser before upload.
+const MAX_FILE_BYTES = 30 * 1024 * 1024;
+const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/gif'];
+
+/* ------------------------------------------------------------------ */
+/* State                                                              */
+/* ------------------------------------------------------------------ */
+
 let products = [];
-let deleteProductId = null;
-let searchProductTerm = '';
+let deleteTargetId = null;
+let addImages = null;
+let editImages = null;
+let addColors = null;
+let editColors = null;
+let busy = false;
 
-// Cloudinary Config (keep your existing key)
-const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dgsckxyw8/image/upload";
-const CLOUDINARY_PRESET = "gjzwfzxc";
+const tableFilters = { search: '', category: 'all', stock: 'all' };
 
-// ========================================
-// INITIALIZE
-// ========================================
+/* ------------------------------------------------------------------ */
+/* Boot                                                               */
+/* ------------------------------------------------------------------ */
+
 document.addEventListener('DOMContentLoaded', () => {
+    addImages = createImageManager({
+        managerId: 'p-image-manager',
+        inputId: 'p-image',
+        countId: 'p-image-count',
+        errorId: 'err-p-image'
+    });
+    editImages = createImageManager({
+        managerId: 'edit-image-manager',
+        inputId: 'edit-image',
+        countId: 'edit-image-count',
+        errorId: 'err-edit-image'
+    });
+    addColors = createColorEditor('p-colors', 'p-add-color');
+    editColors = createColorEditor('edit-colors', 'edit-add-color');
+
+    const addForm = document.getElementById('add-product-form');
+    if (addForm) {
+        addForm.addEventListener('submit', handleAddProduct);
+        addForm.addEventListener('reset', () => {
+            setTimeout(() => {
+                addImages.clear();
+                addColors.setColors([]);
+                clearErrors(['p-name', 'p-category', 'p-price', 'p-stock', 'p-desc', 'p-social', 'p-image', 'p-colors']);
+                const label = document.getElementById('file-label');
+                if (label) label.classList.remove('has-file');
+            }, 0);
+        });
+    }
+
+    const editForm = document.getElementById('edit-form');
+    if (editForm) editForm.addEventListener('submit', handleEditProduct);
+
+    bindModalDismiss('edit-modal', '[data-edit-close]', closeEditModal);
+    bindModalDismiss('delete-modal', '[data-delete-close]', closeDeleteModal);
+
+    const confirmDelete = document.getElementById('confirm-delete-btn');
+    if (confirmDelete) confirmDelete.addEventListener('click', confirmDeleteProduct);
+
+    bindTableControls();
+
+    const refresh = document.getElementById('refresh-inventory');
+    if (refresh) {
+        refresh.addEventListener('click', () => {
+            const icon = document.getElementById('refresh-icon');
+            if (icon) icon.classList.add('animate-spin');
+            loadInventory().finally(() => {
+                setTimeout(() => {
+                    if (icon) icon.classList.remove('animate-spin');
+                }, 400);
+            });
+        });
+    }
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key !== 'Escape') return;
+        closeEditModal();
+        closeDeleteModal();
+    });
+
     loadInventory();
-    
-    document.getElementById('add-product-form').addEventListener('submit', handleAddProduct);
-    document.getElementById('edit-form').addEventListener('submit', handleEditProduct);
 });
 
-// ========================================
-// LOAD INVENTORY
-// ========================================
+/* ------------------------------------------------------------------ */
+/* Load + render                                                       */
+/* ------------------------------------------------------------------ */
+
 async function loadInventory() {
     try {
-        const productsRef = collection(db, "products");
-        const snapshot = await getDocs(productsRef);
-        
-        products = snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-        }));
-        
-        renderDashboardSummary();
+        const snapshot = await getDocs(collection(db, 'products'));
+        products = snapshot.docs
+            .map((docSnap) => normalizeProduct(docSnap.id, docSnap.data()))
+            .sort((a, b) => String(b.createdAt || '').localeCompare(String(a.createdAt || '')));
+
+        renderSummary();
         renderLowStockAlert();
         renderInventory();
-        
     } catch (error) {
-        console.error("Error loading inventory:", error);
-        showToast("Failed to load products", "error");
+        console.error('[admin] failed to load inventory', error);
+        showToast('Failed to load products. Check your connection.', 'error');
+        const tbody = document.getElementById('inventory-table');
+        if (tbody) {
+            tbody.innerHTML =
+                '<tr><td colspan="5" class="!py-10 text-center text-sm text-text-muted">Could not load inventory.</td></tr>';
+        }
     }
 }
 
-// ========================================
-// DASHBOARD SUMMARY
-// ========================================
-function renderDashboardSummary() {
-    const total = products.length;
-    const lowStock = products.filter(p => p.stock > 0 && p.stock <= 5).length;
-    const outOfStock = products.filter(p => p.stock <= 0).length;
-
-    document.getElementById('total-products-count').textContent = total;
-    document.getElementById('low-stock-count').textContent = lowStock;
-    document.getElementById('out-of-stock-count').textContent = outOfStock;
+function renderSummary() {
+    const totalStock = products.reduce((sum, p) => sum + p.stock, 0);
+    setText('total-products-count', String(products.length));
+    setText('total-stock-count', String(totalStock));
+    setText('low-stock-count', String(products.filter((p) => p.stock > 0 && p.stock <= 5).length));
+    setText('out-of-stock-count', String(products.filter((p) => p.stock <= 0).length));
 }
 
-// ========================================
-// LOW STOCK ALERT
-// ========================================
 function renderLowStockAlert() {
-    const lowStockProducts = products.filter(p => p.stock > 0 && p.stock <= 5);
-    const alertContainer = document.getElementById('low-stock-alert');
-    
-    if (lowStockProducts.length === 0) {
-        alertContainer.classList.add('hidden');
-        alertContainer.innerHTML = '';
+    const host = document.getElementById('low-stock-alert');
+    if (!host) return;
+
+    const low = products.filter((p) => p.stock > 0 && p.stock <= 5);
+    if (!low.length) {
+        host.classList.add('hidden');
+        host.innerHTML = '';
         return;
     }
-    
-    alertContainer.classList.remove('hidden');
-    alertContainer.innerHTML = `
-        <div class="low-stock-alert">
-            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-            </svg>
-            <p>
-                ⚠️ <strong>${lowStockProducts.length} product${lowStockProducts.length > 1 ? 's' : ''}</strong> running low on stock: 
-                <span class="low-stock-items">${lowStockProducts.map(p => `${p.name} (${p.stock} left)`).join(', ')}</span>
-            </p>
-        </div>
-    `;
+
+    host.classList.remove('hidden');
+    host.innerHTML = `
+<div class="low-stock-alert">
+    <svg width="18" height="18" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+    </svg>
+    <p>
+        <strong>${low.length} product${low.length > 1 ? 's' : ''}</strong> running low:
+        <span class="low-stock-items">${low.map((p) => escapeHtml(p.name) + ' (' + p.stock + ')').join(', ')}</span>
+    </p>
+</div>`;
 }
 
-// ========================================
-// RENDER INVENTORY
-// ========================================
-function renderInventory(filteredProducts = null) {
+function filteredProducts() {
+    return products.filter((p) => {
+        if (tableFilters.category !== 'all' && p.category !== tableFilters.category) return false;
+        if (tableFilters.stock === 'low' && !(p.stock > 0 && p.stock <= 5)) return false;
+        if (tableFilters.stock === 'out' && p.stock > 0) return false;
+        if (tableFilters.search) {
+            const haystack = (p.name + ' ' + categoryLabel(p.category) + ' ' + p.description).toLowerCase();
+            if (!haystack.includes(tableFilters.search)) return false;
+        }
+        return true;
+    });
+}
+
+function renderInventory() {
     const tbody = document.getElementById('inventory-table');
-    const displayProducts = filteredProducts || products;
-    
-    document.getElementById('inventory-count').textContent = `${displayProducts.length} product${displayProducts.length !== 1 ? 's' : ''} in inventory`;
+    if (!tbody) return;
 
-    if (displayProducts.length === 0) {
+    const list = filteredProducts();
+    setText(
+        'inventory-count',
+        list.length === products.length
+            ? products.length + (products.length === 1 ? ' product' : ' products') + ' in inventory'
+            : list.length + ' of ' + products.length + ' products shown'
+    );
+
+    if (!list.length) {
         tbody.innerHTML = `
-            <tr>
-                <td colspan="5" class="px-6 py-12 text-center">
-                    <div class="w-16 h-16 mx-auto mb-4 bg-bg-alt rounded-full flex items-center justify-center">
-                        <svg class="w-8 h-8 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-                        </svg>
-                    </div>
-                    <h3 class="font-serif text-lg font-semibold text-text mb-1">No products</h3>
-                    <p class="text-sm text-text-muted">${searchProductTerm ? 'No products match your search.' : 'Add your first product above!'}</p>
-                </td>
-            </tr>
-        `;
+<tr>
+    <td colspan="5" class="!py-12 text-center">
+        <div class="empty-state-icon">
+            <svg width="18" height="18" class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+            </svg>
+        </div>
+        <h3 class="font-serif text-base font-bold text-text mb-1">No products found</h3>
+        <p class="text-sm text-text-muted">${products.length ? 'Try a different search or filter.' : 'Add your first product using the form above.'}</p>
+    </td>
+</tr>`;
         return;
     }
 
-    tbody.innerHTML = displayProducts.map(product => {
-        const stockColor = product.stock <= 0 ? 'bg-error' : product.stock <= 5 ? 'bg-warning' : 'bg-success';
-        const stockPct = Math.min((product.stock / 50) * 100, 100);
-        
-        return `
-            <tr class="border-b border-border hover:bg-bg-alt/50 transition-colors">
-                <td class="px-6 py-4">
-                    <div class="flex items-center gap-3">
-                        <img src="${product.imageUrl || 'https://via.placeholder.com/60'}" alt="${product.name}" 
-                             class="w-12 h-12 rounded-lg object-cover border border-border"
-                             onerror="this.src='https://via.placeholder.com/60'">
-                        <div>
-                            <p class="font-semibold text-text text-sm">${product.name}</p>
-                        </div>
-                    </div>
-                </td>
-                <td class="px-6 py-4">
-                    <span class="px-3 py-1 bg-bg-alt rounded-full text-xs font-semibold text-text-secondary capitalize">${product.category || 'N/A'}</span>
-                </td>
-                <td class="px-6 py-4">
-                    <span class="font-semibold text-text">৳ ${product.price}</span>
-                </td>
-                <td class="px-6 py-4">
-                    <div class="flex items-center gap-3">
-                        <span class="font-semibold text-sm ${product.stock <= 0 ? 'text-error' : product.stock <= 5 ? 'text-warning' : 'text-text'}">${product.stock}</span>
-                        <div class="stock-indicator w-24">
-                            <div class="stock-indicator-fill ${stockColor}" style="width: ${stockPct}%"></div>
-                        </div>
-                    </div>
-                </td>
-                <td class="px-6 py-4">
-                    <div class="flex items-center justify-end gap-2">
-                        <button onclick="openEditModal('${product.id}')" class="p-2 text-accent hover:bg-accent/10 rounded-lg transition-colors" title="Edit">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                            </svg>
-                        </button>
-                        <button onclick="openDeleteModal('${product.id}')" class="p-2 text-error hover:bg-error/10 rounded-lg transition-colors" title="Delete">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                            </svg>
-                        </button>
-                    </div>
-                </td>
-            </tr>
-        `;
-    }).join('');
+    tbody.innerHTML = list
+        .map((product) => {
+            const stockColor = product.stock <= 0 ? 'bg-error' : product.stock <= 5 ? 'bg-warning' : 'bg-success';
+            const stockPct = Math.min((product.stock / 50) * 100, 100);
+            const stockText =
+                product.stock <= 0 ? 'text-error' : product.stock <= 5 ? 'text-warning-dark' : 'text-text';
+
+            return `
+<tr>
+    <td data-label="Product">
+        <div class="flex items-center gap-3 min-w-0">
+            <div class="relative shrink-0">
+                <img ${responsiveImgAttrs(product.image, { width: 96, widths: [96, 192], sizes: '48px' })} alt=""
+                     class="w-12 h-12 rounded-xl object-cover border border-border bg-bg-alt" loading="lazy" decoding="async">
+                ${product.images.length > 1
+                    ? `<span class="absolute -bottom-1 -right-1 px-1.5 py-0.5 rounded-full bg-text text-white text-[9px] font-bold">${product.images.length}</span>`
+                    : ''}
+            </div>
+            <div class="min-w-0">
+                <p class="font-bold text-text text-sm truncate max-w-[16rem]">${escapeHtml(product.name)}</p>
+                <div class="flex items-center gap-2 mt-1 flex-wrap">
+                    ${product.colors.length
+                    ? '<span class="swatch-row">' +
+                    product.colors
+                        .slice(0, 5)
+                        .map(
+                            (c) =>
+                                '<span class="swatch-dot" style="background:' +
+                                escapeAttr(c.hex) +
+                                '" title="' +
+                                escapeAttr(c.name) +
+                                '"></span>'
+                        )
+                        .join('') +
+                    (product.colors.length > 5 ? '<span class="swatch-more">+' + (product.colors.length - 5) + '</span>' : '') +
+                    '</span>'
+                    : '<span class="text-[10px] text-text-muted">No colours</span>'}
+                    ${product.featured ? '<span class="badge badge-primary !text-[9px] !px-2 !py-0.5">Featured</span>' : ''}
+                </div>
+            </div>
+        </div>
+    </td>
+    <td data-label="Category">
+        <span class="badge badge-neutral capitalize">${escapeHtml(categoryLabel(product.category))}</span>
+    </td>
+    <td data-label="Price">
+        <span class="font-bold text-text text-sm">${formatBDT(product.price)}</span>
+    </td>
+    <td data-label="Stock">
+        <div class="flex items-center gap-3 justify-end md:justify-start">
+            <span class="font-bold text-sm ${stockText}">${product.stock}</span>
+            <span class="stock-indicator w-20 hidden md:block">
+                <span class="stock-indicator-fill ${stockColor}" style="width:${stockPct}%"></span>
+            </span>
+        </div>
+    </td>
+    <td data-label="Actions">
+        <div class="flex items-center justify-end gap-1">
+            <a href="product.html?id=${encodeURIComponent(product.id)}" target="_blank" rel="noopener"
+               class="p-2 text-text-muted hover:text-text hover:bg-bg-alt rounded-lg transition-colors" title="View on shop">
+                <svg width="18" height="18" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                </svg>
+            </a>
+            <button type="button" data-action="edit" data-id="${escapeAttr(product.id)}"
+                    class="p-2 text-accent hover:bg-accent-light rounded-lg transition-colors" title="Edit">
+                <svg width="18" height="18" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                </svg>
+            </button>
+            <button type="button" data-action="delete" data-id="${escapeAttr(product.id)}"
+                    class="p-2 text-error hover:bg-error-light rounded-lg transition-colors" title="Delete">
+                <svg width="18" height="18" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+            </button>
+        </div>
+    </td>
+</tr>`;
+        })
+        .join('');
 }
 
-// ========================================
-// SEARCH PRODUCTS
-// ========================================
-window.searchProducts = function() {
-    searchProductTerm = document.getElementById('search-products')?.value?.toLowerCase() || '';
-    if (!searchProductTerm) {
-        renderInventory();
-        return;
+function bindTableControls() {
+    const search = document.getElementById('search-products');
+    if (search) {
+        search.addEventListener('input', () => {
+            tableFilters.search = search.value.trim().toLowerCase();
+            renderInventory();
+        });
     }
-    const filtered = products.filter(p => 
-        p.name.toLowerCase().includes(searchProductTerm) ||
-        (p.category || '').toLowerCase().includes(searchProductTerm)
-    );
-    renderInventory(filtered);
-};
 
-// ========================================
-// ADD PRODUCT
-// ========================================
-async function handleAddProduct(e) {
-    e.preventDefault();
+    const category = document.getElementById('filter-category');
+    if (category) {
+        category.addEventListener('change', () => {
+            tableFilters.category = category.value;
+            renderInventory();
+        });
+    }
 
-    const name = document.getElementById('p-name').value;
-    const category = document.getElementById('p-category').value;
-    const description = document.getElementById('p-desc').value;
-    const socialLink = document.getElementById('p-social').value;
-    const price = parseInt(document.getElementById('p-price').value);
-    const stock = parseInt(document.getElementById('p-stock').value);
-    const imageFile = document.getElementById('p-image').files[0];
+    const stock = document.getElementById('filter-stock');
+    if (stock) {
+        stock.addEventListener('change', () => {
+            tableFilters.stock = stock.value;
+            renderInventory();
+        });
+    }
 
-    if (!imageFile) {
-        showToast('Please select an image', 'error');
+    const tbody = document.getElementById('inventory-table');
+    if (tbody) {
+        tbody.addEventListener('click', (event) => {
+            const btn = event.target.closest('[data-action]');
+            if (!btn) return;
+            event.preventDefault();
+            if (btn.dataset.action === 'edit') openEditModal(btn.dataset.id);
+            if (btn.dataset.action === 'delete') openDeleteModal(btn.dataset.id);
+        });
+    }
+}
+
+/* ------------------------------------------------------------------ */
+/* Image manager                                                       */
+/* ------------------------------------------------------------------ */
+
+function createImageManager(options) {
+    const host = document.getElementById(options.managerId);
+    const input = document.getElementById(options.inputId);
+    const countEl = options.countId ? document.getElementById(options.countId) : null;
+    let items = [];
+
+    function revoke(item) {
+        if (item && item.kind === 'file' && item.preview) {
+            try { URL.revokeObjectURL(item.preview); } catch (err) { /* ignore */ }
+        }
+    }
+
+    function render() {
+        if (countEl) countEl.textContent = items.length + ' / ' + MAX_IMAGES;
+        if (!host) return;
+
+        if (!items.length) {
+            host.innerHTML =
+                '<p class="text-xs text-text-muted col-span-full">No photos added yet.</p>';
+            return;
+        }
+
+        host.innerHTML = items
+            .map(
+                (item, index) => `
+<div class="img-tile${index === 0 ? ' primary' : ''}">
+    <img ${item.kind === 'file' ? 'src="' + escapeAttr(item.preview) + '"' : responsiveImgAttrs(item.url, { width: 320, widths: [240, 320, 480], sizes: '160px' })} alt="Photo ${index + 1}" decoding="async">
+    ${index === 0 ? '<span class="primary-flag">Cover</span>' : ''}
+    <div class="tile-actions">
+        <button type="button" data-img-action="left" data-index="${index}" ${index === 0 ? 'disabled' : ''}
+                title="Move left" aria-label="Move photo ${index + 1} left">
+            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/>
+            </svg>
+        </button>
+        <button type="button" data-img-action="right" data-index="${index}" ${index === items.length - 1 ? 'disabled' : ''}
+                title="Move right" aria-label="Move photo ${index + 1} right">
+            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
+            </svg>
+        </button>
+        <button type="button" data-img-action="remove" data-index="${index}"
+                title="Remove" aria-label="Remove photo ${index + 1}">
+            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+        </button>
+    </div>
+</div>`
+            )
+            .join('');
+    }
+
+    function addFiles(fileList) {
+        const files = Array.prototype.slice.call(fileList || []);
+        if (!files.length) return;
+
+        let rejectedType = 0;
+        let rejectedSize = 0;
+        let rejectedCount = 0;
+
+        files.forEach((file) => {
+            if (items.length >= MAX_IMAGES) {
+                rejectedCount++;
+                return;
+            }
+            if (ALLOWED_TYPES.indexOf(file.type) === -1) {
+                rejectedType++;
+                return;
+            }
+            if (file.size > MAX_FILE_BYTES) {
+                rejectedSize++;
+                return;
+            }
+            items.push({ kind: 'file', file, preview: URL.createObjectURL(file) });
+        });
+
+        if (rejectedType) showToast(rejectedType + ' file(s) skipped — only JPG, PNG, WebP or GIF.', 'warning');
+        if (rejectedSize) showToast(rejectedSize + ' file(s) skipped — each photo must be under 30MB.', 'warning');
+        if (rejectedCount) showToast('Maximum ' + MAX_IMAGES + ' photos per product.', 'warning');
+
+        render();
+        setError(options.errorId, '');
+    }
+
+    if (input) {
+        input.addEventListener('change', () => {
+            addFiles(input.files);
+            input.value = '';
+            const label = document.getElementById(options.inputId === 'p-image' ? 'file-label' : 'edit-file-label');
+            if (label && options.inputId === 'p-image') label.classList.toggle('has-file', items.length > 0);
+        });
+    }
+
+    if (host) {
+        host.addEventListener('click', (event) => {
+            const btn = event.target.closest('[data-img-action]');
+            if (!btn || btn.disabled) return;
+            event.preventDefault();
+            const index = Number(btn.dataset.index);
+            if (!Number.isInteger(index) || index < 0 || index >= items.length) return;
+
+            if (btn.dataset.imgAction === 'remove') {
+                revoke(items[index]);
+                items.splice(index, 1);
+            } else {
+                const target = btn.dataset.imgAction === 'left' ? index - 1 : index + 1;
+                if (target < 0 || target >= items.length) return;
+                const moved = items.splice(index, 1)[0];
+                items.splice(target, 0, moved);
+            }
+            render();
+        });
+    }
+
+    render();
+
+    return {
+        count: () => items.length,
+        clear() {
+            items.forEach(revoke);
+            items = [];
+            render();
+        },
+        setUrls(urls) {
+            items.forEach(revoke);
+            items = (urls || [])
+                .map((url) => safeUrl(url))
+                .filter(Boolean)
+                .slice(0, MAX_IMAGES)
+                .map((url) => ({ kind: 'url', url }));
+            render();
+        },
+        /** Uploads any pending files and returns the ordered URL list. */
+        async resolve(onProgress) {
+            const pending = items.filter((item) => item.kind === 'file');
+            let done = 0;
+            if (pending.length && typeof onProgress === 'function') {
+                onProgress(0, pending.length);
+            }
+
+            const resolved = [];
+            let savedBytes = 0;
+            for (let i = 0; i < items.length; i++) {
+                const item = items[i];
+                if (item.kind === 'url') {
+                    resolved.push(item.url);
+                    continue;
+                }
+                // Shrink + convert to WebP in the browser first, so the cloud
+                // only ever stores a web-sized file (and uploads are faster).
+                let toUpload = item.file;
+                try {
+                    const packed = await compressImage(item.file);
+                    toUpload = packed.file;
+                    savedBytes += Math.max(0, packed.originalBytes - packed.finalBytes);
+                } catch (err) {
+                    console.warn('[admin] compression skipped', err);
+                }
+                // Sequential upload keeps the unsigned Cloudinary preset happy
+                // and gives the admin accurate progress feedback.
+                const url = await uploadToCloudinary(toUpload);
+                resolved.push(url);
+                done++;
+                if (typeof onProgress === 'function') onProgress(done, pending.length);
+            }
+            if (savedBytes > 100 * 1024) {
+                showToast('Photos optimised — saved ' + formatBytes(savedBytes) + ' of storage.', 'success');
+            }
+            return resolved;
+        }
+    };
+}
+
+async function uploadToCloudinary(file) {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', CLOUDINARY_PRESET);
+
+    const response = await fetch(CLOUDINARY_URL, { method: 'POST', body: formData });
+    let data = {};
+    try {
+        data = await response.json();
+    } catch (err) {
+        data = {};
+    }
+
+    if (!response.ok || !data.secure_url) {
+        const message = (data.error && data.error.message) || 'Upload failed';
+        throw new Error('Image upload failed: ' + message);
+    }
+    return data.secure_url;
+}
+
+/* ------------------------------------------------------------------ */
+/* Colour editor                                                       */
+/* ------------------------------------------------------------------ */
+
+const DEFAULT_SWATCHES = ['#E85A4F', '#D4A574', '#4A90A4', '#6B5B52', '#22C55E', '#F59E0B'];
+
+function createColorEditor(hostId, addButtonId) {
+    const host = document.getElementById(hostId);
+    const addBtn = document.getElementById(addButtonId);
+
+    function rowHTML(name, hex) {
+        return `
+<div class="color-row">
+    <input type="color" value="${escapeAttr(hex)}" aria-label="Colour swatch" data-color-hex>
+    <input type="text" value="${escapeAttr(name)}" placeholder="Colour name (e.g. Pastel Pink)"
+           maxlength="40" aria-label="Colour name" data-color-name>
+    <button type="button" class="remove-color" data-color-remove aria-label="Remove colour">
+        <svg width="18" height="18" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+    </button>
+</div>`;
+    }
+
+    function addRow(name, hex) {
+        if (!host) return;
+        const index = host.querySelectorAll('.color-row').length;
+        const swatch = hex || DEFAULT_SWATCHES[index % DEFAULT_SWATCHES.length];
+        host.insertAdjacentHTML('beforeend', rowHTML(name || '', swatch));
+        const rows = host.querySelectorAll('.color-row');
+        const last = rows[rows.length - 1];
+        const nameInput = last ? last.querySelector('[data-color-name]') : null;
+        if (nameInput && !name) nameInput.focus();
+    }
+
+    if (addBtn) {
+        addBtn.addEventListener('click', (event) => {
+            event.preventDefault();
+            if (host && host.querySelectorAll('.color-row').length >= 20) {
+                showToast('That is plenty of colours (max 20).', 'warning');
+                return;
+            }
+            addRow('');
+        });
+    }
+
+    if (host) {
+        host.addEventListener('click', (event) => {
+            const remove = event.target.closest('[data-color-remove]');
+            if (!remove) return;
+            event.preventDefault();
+            const row = remove.closest('.color-row');
+            if (row) row.remove();
+        });
+    }
+
+    return {
+        setColors(colors) {
+            if (!host) return;
+            host.innerHTML = '';
+            (colors || []).forEach((color) => addRow(color.name, color.hex));
+        },
+        /** @returns {{colors: Array, error: string}} */
+        read() {
+            if (!host) return { colors: [], error: '' };
+            const rows = Array.prototype.slice.call(host.querySelectorAll('.color-row'));
+            const colors = [];
+            const seen = new Set();
+            let error = '';
+
+            rows.forEach((row) => {
+                const nameInput = row.querySelector('[data-color-name]');
+                const hexInput = row.querySelector('[data-color-hex]');
+                const name = sanitizeText(nameInput ? nameInput.value : '', 40);
+                const hex = hexInput ? hexInput.value : '';
+                // Rows left blank are simply ignored.
+                if (!name) return;
+
+                const key = name.toLowerCase();
+                if (seen.has(key)) {
+                    error = 'Duplicate colour name: ' + name;
+                    return;
+                }
+                seen.add(key);
+                colors.push({ name, hex: /^#[0-9a-fA-F]{6}$/.test(hex) ? hex.toLowerCase() : '#d4a574' });
+            });
+
+            return { colors, error };
+        }
+    };
+}
+
+/* ------------------------------------------------------------------ */
+/* Add product                                                         */
+/* ------------------------------------------------------------------ */
+
+async function handleAddProduct(event) {
+    event.preventDefault();
+    if (busy) return;
+
+    const name = sanitizeText(getValue('p-name'), 140);
+    const category = getValue('p-category');
+    const description = sanitizeText(getValue('p-desc'), 4000);
+    const socialRaw = getValue('p-social').trim();
+    const price = getNumber('p-price');
+    const stock = getNumber('p-stock');
+    const featured = isChecked('p-featured');
+    const colorResult = addColors.read();
+
+    const errors = {};
+    if (name.length < 2) errors['p-name'] = 'Enter a product name.';
+    if (!CATEGORIES.some((c) => c.id === category)) errors['p-category'] = 'Choose a category.';
+    if (description.length < 5) errors['p-desc'] = 'Add a short description.';
+    if (!Number.isFinite(price) || price < 0) errors['p-price'] = 'Enter a price (0 or more).';
+    if (!Number.isFinite(stock) || stock < 0) errors['p-stock'] = 'Enter a stock amount (0 or more).';
+    if (socialRaw && !safeUrl(socialRaw)) errors['p-social'] = 'Use a full https:// link.';
+    if (addImages.count() === 0) errors['p-image'] = 'Add at least one photo.';
+    if (colorResult.error) errors['p-colors'] = colorResult.error;
+
+    showErrors(errors, ['p-name', 'p-category', 'p-price', 'p-stock', 'p-desc', 'p-social', 'p-image', 'p-colors']);
+    if (Object.keys(errors).length) {
+        showToast('Please fix the highlighted fields.', 'warning');
         return;
     }
 
     const submitBtn = document.getElementById('submit-btn');
-    const originalBtnContent = submitBtn.innerHTML;
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = `
-        <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-        </svg>
-        Uploading...
-    `;
+    busy = true;
+    setButtonLoading(submitBtn, true, 'Uploading…');
 
     try {
-        // Upload to Cloudinary
-        const formData = new FormData();
-        formData.append('file', imageFile);
-        formData.append('upload_preset', CLOUDINARY_PRESET);
-        
-        const cloudinaryRes = await fetch(CLOUDINARY_URL, {
-            method: 'POST',
-            body: formData
+        const images = await addImages.resolve((done, total) => {
+            setButtonLoading(submitBtn, true, 'Uploading ' + done + '/' + total + '…');
         });
-        const cloudinaryData = await cloudinaryRes.json();
-        
-        if (!cloudinaryRes.ok || !cloudinaryData.secure_url) {
-            const errorMsg = cloudinaryData.error?.message || 'Failed to upload image to Cloudinary';
-            throw new Error(`Cloudinary Error: ${errorMsg}. (Check if your upload preset "${CLOUDINARY_PRESET}" exists and is set to Unsigned)`);
-        }
+        setButtonLoading(submitBtn, true, 'Saving…');
 
-        const imageUrl = cloudinaryData.secure_url;
-
-        // Save to Firestore
-        await addDoc(collection(db, "products"), {
+        const now = new Date().toISOString();
+        await addDoc(collection(db, 'products'), {
             name,
             category,
             description,
-            socialLink,
-            price,
-            stock,
-            imageUrl,
-            createdAt: new Date().toISOString()
+            socialLink: safeUrl(socialRaw),
+            price: Math.round(price),
+            stock: Math.trunc(stock),
+            images,
+            // `imageUrl` stays in sync so any older client keeps working.
+            imageUrl: images[0],
+            colors: colorResult.colors,
+            featured,
+            createdAt: now,
+            updatedAt: now
         });
 
-        showToast('Product added successfully! 🎉', 'success');
-        document.getElementById('add-product-form').reset();
-        document.getElementById('file-label').classList.remove('has-file');
+        showToast('Product added successfully', 'success');
+        const form = document.getElementById('add-product-form');
+        if (form) form.reset();
+        addImages.clear();
+        addColors.setColors([]);
+        const label = document.getElementById('file-label');
+        if (label) label.classList.remove('has-file');
 
-        loadInventory();
-        
+        await loadInventory();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (error) {
-        console.error("Error adding product:", error);
-        showToast('Failed to add product', 'error');
+        console.error('[admin] add product failed', error);
+        showToast(error && error.message ? error.message : 'Failed to add product', 'error', 6000);
     } finally {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = originalBtnContent;
+        busy = false;
+        setButtonLoading(submitBtn, false, 'Add product');
     }
 }
 
-// ========================================
-// EDIT PRODUCT
-// ========================================
-window.openEditModal = function(productId) {
-    const product = products.find(p => p.id === productId);
-    if (!product) return;
+/* ------------------------------------------------------------------ */
+/* Edit product                                                        */
+/* ------------------------------------------------------------------ */
 
-    document.getElementById('edit-id').value = productId;
-    document.getElementById('edit-name').value = product.name;
-    document.getElementById('edit-social').value = product.socialLink || '';
-    document.getElementById('edit-price').value = product.price;
-    document.getElementById('edit-stock').value = product.stock;
-
-    const modal = document.getElementById('edit-modal');
-    modal.classList.remove('opacity-0', 'invisible');
-};
-
-window.closeEditModal = function() {
-    const modal = document.getElementById('edit-modal');
-    modal.classList.add('opacity-0', 'invisible');
-};
-
-async function handleEditProduct(e) {
-    e.preventDefault();
-
-    const id = document.getElementById('edit-id').value;
-    const name = document.getElementById('edit-name').value;
-    const socialLink = document.getElementById('edit-social').value;
-    const price = parseInt(document.getElementById('edit-price').value);
-    const stock = parseInt(document.getElementById('edit-stock').value);
-
-    try {
-        const productRef = doc(db, "products", id);
-        await updateDoc(productRef, { name, socialLink, price, stock });
-
-        showToast('Product updated! ✅', 'success');
-        closeEditModal();
+function openEditModal(productId) {
+    const product = products.find((p) => p.id === productId);
+    if (!product) {
+        showToast('Product not found — refreshing list.', 'warning');
         loadInventory();
+        return;
+    }
 
+    setValue('edit-id', product.id);
+    setValue('edit-name', product.name);
+    setValue('edit-desc', product.description);
+    setValue('edit-social', product.socialLink);
+    setValue('edit-price', String(product.price));
+    setValue('edit-stock', String(product.stock));
+
+    const categorySelect = document.getElementById('edit-category');
+    if (categorySelect) {
+        categorySelect.value = CATEGORIES.some((c) => c.id === product.category) ? product.category : 'molds';
+    }
+    const featured = document.getElementById('edit-featured');
+    if (featured) featured.checked = !!product.featured;
+
+    // Real stored images only — never persist the generated placeholder.
+    const stored = product.images.filter((url) => safeUrl(url) && url.indexOf('data:image/svg+xml') !== 0);
+    editImages.setUrls(stored);
+    editColors.setColors(product.colors);
+    clearErrors(['edit-name', 'edit-price', 'edit-stock', 'edit-desc', 'edit-social', 'edit-image', 'edit-colors']);
+
+    openModal('edit-modal');
+}
+
+function closeEditModal() {
+    closeModal('edit-modal');
+}
+
+async function handleEditProduct(event) {
+    event.preventDefault();
+    if (busy) return;
+
+    const id = getValue('edit-id');
+    if (!id) return;
+
+    const name = sanitizeText(getValue('edit-name'), 140);
+    const category = getValue('edit-category');
+    const description = sanitizeText(getValue('edit-desc'), 4000);
+    const socialRaw = getValue('edit-social').trim();
+    const price = getNumber('edit-price');
+    const stock = getNumber('edit-stock');
+    const featured = isChecked('edit-featured');
+    const colorResult = editColors.read();
+
+    const errors = {};
+    if (name.length < 2) errors['edit-name'] = 'Enter a product name.';
+    if (description.length < 5) errors['edit-desc'] = 'Add a short description.';
+    if (!Number.isFinite(price) || price < 0) errors['edit-price'] = 'Enter a price (0 or more).';
+    if (!Number.isFinite(stock) || stock < 0) errors['edit-stock'] = 'Enter a stock amount (0 or more).';
+    if (socialRaw && !safeUrl(socialRaw)) errors['edit-social'] = 'Use a full https:// link.';
+    if (editImages.count() === 0) errors['edit-image'] = 'Keep at least one photo.';
+    if (colorResult.error) errors['edit-colors'] = colorResult.error;
+
+    showErrors(errors, ['edit-name', 'edit-price', 'edit-stock', 'edit-desc', 'edit-social', 'edit-image', 'edit-colors']);
+    if (Object.keys(errors).length) {
+        showToast('Please fix the highlighted fields.', 'warning');
+        return;
+    }
+
+    const submitBtn = document.getElementById('edit-submit');
+    busy = true;
+    setButtonLoading(submitBtn, true, 'Saving…');
+
+    try {
+        const images = await editImages.resolve((done, total) => {
+            setButtonLoading(submitBtn, true, 'Uploading ' + done + '/' + total + '…');
+        });
+
+        await updateDoc(doc(db, 'products', id), {
+            name,
+            category,
+            description,
+            socialLink: safeUrl(socialRaw),
+            price: Math.round(price),
+            stock: Math.trunc(stock),
+            images,
+            imageUrl: images[0],
+            colors: colorResult.colors,
+            featured,
+            updatedAt: new Date().toISOString()
+        });
+
+        showToast('Product updated', 'success');
+        closeEditModal();
+        await loadInventory();
     } catch (error) {
-        console.error("Error updating product:", error);
-        showToast('Failed to update product', 'error');
+        console.error('[admin] update failed', error);
+        showToast(error && error.message ? error.message : 'Failed to update product', 'error', 6000);
+    } finally {
+        busy = false;
+        setButtonLoading(submitBtn, false, 'Save changes');
     }
 }
 
-// ========================================
-// DELETE PRODUCT
-// ========================================
-window.openDeleteModal = function(productId) {
-    deleteProductId = productId;
-    const modal = document.getElementById('delete-modal');
-    modal.classList.remove('opacity-0', 'invisible');
-};
+/* ------------------------------------------------------------------ */
+/* Delete product                                                      */
+/* ------------------------------------------------------------------ */
 
-window.closeDeleteModal = function() {
-    const modal = document.getElementById('delete-modal');
-    modal.classList.add('opacity-0', 'invisible');
-    deleteProductId = null;
-};
+function openDeleteModal(productId) {
+    const product = products.find((p) => p.id === productId);
+    if (!product) return;
+    deleteTargetId = productId;
+    setText('delete-name', product.name);
+    openModal('delete-modal');
+}
 
-window.confirmDelete = async function() {
-    if (!deleteProductId) return;
+function closeDeleteModal() {
+    closeModal('delete-modal');
+    deleteTargetId = null;
+}
+
+async function confirmDeleteProduct() {
+    if (!deleteTargetId || busy) return;
+    const btn = document.getElementById('confirm-delete-btn');
+    busy = true;
+    setButtonLoading(btn, true, 'Deleting…');
 
     try {
-        await deleteDoc(doc(db, "products", deleteProductId));
+        await deleteDoc(doc(db, 'products', deleteTargetId));
         showToast('Product deleted', 'success');
         closeDeleteModal();
-        loadInventory();
-
+        await loadInventory();
     } catch (error) {
-        console.error("Error deleting product:", error);
+        console.error('[admin] delete failed', error);
         showToast('Failed to delete product', 'error');
+    } finally {
+        busy = false;
+        setButtonLoading(btn, false, 'Delete');
     }
-};
+}
 
-// ========================================
-// IMAGE PREVIEW
-// ========================================
-window.previewImage = function(input) {
-    const label = document.getElementById('file-label');
-    if (input.files && input.files[0]) {
-        label.classList.add('has-file');
-        label.innerHTML = `
-            <svg class="w-8 h-8 text-primary mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-            </svg>
-            <span class="text-sm text-primary font-semibold">${input.files[0].name}</span>
-        `;
-    } else {
-        label.classList.remove('has-file');
-        label.innerHTML = `
-            <svg class="w-8 h-8 text-text-muted mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-            </svg>
-            <span class="text-sm text-text-muted">Click to upload image</span>
-        `;
+/* ------------------------------------------------------------------ */
+/* Modal helpers                                                       */
+/* ------------------------------------------------------------------ */
+
+function openModal(id) {
+    const modal = document.getElementById(id);
+    if (!modal) return;
+    modal.classList.add('active');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('no-scroll');
+    const focusable = modal.querySelector('input, select, textarea, button');
+    if (focusable) {
+        setTimeout(() => {
+            try { focusable.focus({ preventScroll: true }); } catch (err) { /* ignore */ }
+        }, 80);
     }
-};
+}
 
-// ========================================
-// SIDEBAR
-// ========================================
-window.toggleSidebar = function() {
-    document.getElementById('sidebar').classList.toggle('open');
-    document.getElementById('sidebar-overlay').classList.toggle('open');
-};
+function closeModal(id) {
+    const modal = document.getElementById(id);
+    if (!modal) return;
+    modal.classList.remove('active');
+    modal.setAttribute('aria-hidden', 'true');
+    const anyOpen = document.querySelector('.modal-overlay.active');
+    if (!anyOpen) document.body.classList.remove('no-scroll');
+}
 
-// ========================================
-// TOAST
-// ========================================
-window.showToast = function(message, type = 'success') {
-    const container = document.getElementById('toast-container') || createToastContainer();
-    const toast = document.createElement('div');
+function bindModalDismiss(modalId, selector, handler) {
+    const modal = document.getElementById(modalId);
+    if (!modal) return;
+    modal.addEventListener('click', (event) => {
+        if (event.target.closest(selector)) {
+            event.preventDefault();
+            handler();
+        }
+    });
+}
 
-    const colors = {
-        success: 'border-l-success bg-success/5',
-        error: 'border-l-error bg-error/5',
-        warning: 'border-l-warning bg-warning/5'
-    };
+/* ------------------------------------------------------------------ */
+/* Form helpers                                                        */
+/* ------------------------------------------------------------------ */
 
-    const icons = {
-        success: '<svg class="w-5 h-5 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>',
-        error: '<svg class="w-5 h-5 text-error" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>',
-        warning: '<svg class="w-5 h-5 text-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>'
-    };
+function setButtonLoading(btn, loading, label) {
+    if (!btn) return;
+    btn.disabled = loading;
+    const span = btn.querySelector('span');
+    if (span) span.textContent = label;
+    else btn.textContent = label;
+}
 
-    toast.className = `flex items-center gap-3 px-4 py-3 bg-surface rounded-xl shadow-xl border-l-4 ${colors[type]} animate-slide-in-up`;
-    toast.innerHTML = `
-        ${icons[type]}
-        <span class="text-sm font-medium text-text">${message}</span>
-    `;
+function showErrors(errors, fields) {
+    fields.forEach((field) => {
+        const message = errors[field] || '';
+        setError('err-' + field, message);
+        const input = document.getElementById(field);
+        if (!input) return;
+        if (message) {
+            input.setAttribute('aria-invalid', 'true');
+            input.classList.add('error');
+        } else {
+            input.removeAttribute('aria-invalid');
+            input.classList.remove('error');
+        }
+    });
 
-    container.appendChild(toast);
+    const first = fields.find((field) => errors[field]);
+    if (first) {
+        const input = document.getElementById(first);
+        if (input) {
+            input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            setTimeout(() => {
+                try { input.focus({ preventScroll: true }); } catch (err) { /* ignore */ }
+            }, 220);
+        }
+    }
+}
 
-    setTimeout(() => {
-        toast.style.opacity = '0';
-        toast.style.transform = 'translateY(10px)';
-        setTimeout(() => toast.remove(), 300);
-    }, 3000);
-};
+function clearErrors(fields) {
+    showErrors({}, fields);
+}
 
-function createToastContainer() {
-    const container = document.createElement('div');
-    container.id = 'toast-container';
-    container.className = 'fixed bottom-6 right-6 z-[200] flex flex-col gap-3';
-    document.body.appendChild(container);
-    return container;
+function setError(id, message) {
+    if (!id) return;
+    const el = document.getElementById(id);
+    if (el) el.textContent = message || '';
+}
+
+function setText(id, value) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value === null || value === undefined ? '' : String(value);
+}
+
+function setValue(id, value) {
+    const el = document.getElementById(id);
+    if (el) el.value = value === null || value === undefined ? '' : String(value);
+}
+
+function getValue(id) {
+    const el = document.getElementById(id);
+    return el ? el.value : '';
+}
+
+/**
+ * Reads a numeric field.
+ * Returns NaN for blank or non-numeric input so validation can catch it —
+ * `Number('')` is 0, which would silently save a free product.
+ */
+function getNumber(id) {
+    const raw = getValue(id).trim();
+    if (raw === '') return NaN;
+    const value = Number(raw);
+    return Number.isFinite(value) ? value : NaN;
+}
+
+function isChecked(id) {
+    const el = document.getElementById(id);
+    return !!(el && el.checked);
 }

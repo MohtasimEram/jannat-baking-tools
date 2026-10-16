@@ -1,379 +1,273 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Login - Jannat Baking</title>
+    <meta name="theme-color" content="#FFFBF7">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Admin Login — Jannat Baking</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;1,400;1,600&display=swap"
+        rel="stylesheet">
+
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: { DEFAULT: '#E85A4F', dark: '#C94A40', light: '#F5A5A0', subtle: '#FEF2F1' },
-                        secondary: { DEFAULT: '#D4A574', dark: '#B88B5E', light: '#E8D4BC' },
-                        surface: '#FFFFFF',
-                        background: '#FFFBF7',
-                        'bg-alt': '#FDF8F3',
-                        border: '#F0E6DC',
-                        text: { DEFAULT: '#2D2420', secondary: '#6B5B52', muted: '#A89B93' }
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'system-ui', 'sans-serif'],
-                        serif: ['Playfair Display', 'Georgia', 'serif'],
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        .bg-animated {
-            background: linear-gradient(135deg, #FFFBF7 0%, #FDF8F3 50%, #FEF2F1 100%);
-            background-size: 400% 400%;
-            animation: gradientShift 15s ease infinite;
-        }
-        
-        @keyframes gradientShift {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-        
-        .shape {
-            position: absolute;
-            border-radius: 50%;
-            opacity: 0.08;
-            pointer-events: none;
-        }
-        
-        .shape-1 {
-            width: 400px;
-            height: 400px;
-            background: linear-gradient(135deg, #E85A4F, #F5A5A0);
-            top: -100px;
-            right: -100px;
-            animation: float 8s ease-in-out infinite;
-        }
-        
-        .shape-2 {
-            width: 300px;
-            height: 300px;
-            background: linear-gradient(135deg, #D4A574, #E8D4BC);
-            bottom: -50px;
-            left: -100px;
-            animation: float 10s ease-in-out infinite reverse;
-        }
-        
-        .shape-3 {
-            width: 200px;
-            height: 200px;
-            background: linear-gradient(135deg, #4A90A4, #E8F4F7);
-            top: 50%;
-            left: 20%;
-            animation: float 12s ease-in-out infinite;
-        }
-        
-        @keyframes float {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-30px) rotate(5deg); }
-        }
-        
-        .input-group {
-            position: relative;
-        }
-        
-        .input-group input {
-            transition: all 0.3s ease;
-        }
-        
-        .input-group label {
-            position: absolute;
-            left: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #A89B93;
-            font-size: 0.9375rem;
-            pointer-events: none;
-            transition: all 0.3s ease;
-            background: white;
-            padding: 0 0.25rem;
-        }
-        
-        .input-group input:focus + label,
-        .input-group input:not(:placeholder-shown) + label {
-            top: 0;
-            font-size: 0.75rem;
-            color: #E85A4F;
-            font-weight: 600;
-        }
-        
-        .input-group input:focus {
-            border-color: #E85A4F;
-            box-shadow: 0 0 0 4px #FEF2F1;
-        }
-        
-        .btn-shine {
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .btn-shine::after {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(
-                to right,
-                transparent 0%,
-                rgba(255, 255, 255, 0.3) 50%,
-                transparent 100%
-            );
-            transform: rotate(30deg) translateX(-100%);
-            transition: transform 0.6s;
-        }
-        
-        .btn-shine:hover::after {
-            transform: rotate(30deg) translateX(100%);
-        }
-        
-        @keyframes cardEnter {
-            from {
-                opacity: 0;
-                transform: translateY(30px) scale(0.95);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-        
-        .card-enter {
-            animation: cardEnter 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-        
-        @keyframes lockPulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-        
-        .lock-icon {
-            animation: lockPulse 3s ease-in-out infinite;
-        }
-        
-        @keyframes errorShake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-10px); }
-            75% { transform: translateX(10px); }
-        }
-        
-        .error-shake {
-            animation: errorShake 0.4s ease-in-out;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        .spinner {
-            animation: spin 1s linear infinite;
-        }
-    </style>
+    <script src="js/theme.js"></script>
+    <link rel="stylesheet" href="css/styles.css">
 </head>
-<body class="bg-animated min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
-    
-    <div class="shape shape-1"></div>
-    <div class="shape shape-2"></div>
-    <div class="shape shape-3"></div>
-    
-    <a href="index.html" class="absolute top-6 left-6 flex items-center gap-2 text-text-secondary hover:text-primary transition-colors group">
-        <svg class="w-5 h-5 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+
+<body class="bg-animated min-h-screen flex items-center justify-center p-4 relative overflow-hidden font-sans text-text">
+
+    <div aria-hidden="true" class="absolute inset-0 overflow-hidden pointer-events-none">
+        <div class="shape shape-1"
+            style="width:420px;height:420px;background:linear-gradient(135deg,#E85A4F,#F5A5A0);top:-120px;right:-120px">
+        </div>
+        <div class="shape shape-2"
+            style="width:320px;height:320px;background:linear-gradient(135deg,#D4A574,#E8D4BC);bottom:-80px;left:-100px">
+        </div>
+        <div class="shape shape-3"
+            style="width:220px;height:220px;background:linear-gradient(135deg,#4A90A4,#E8F4F7);top:48%;left:18%"></div>
+    </div>
+
+    <a href="index.html"
+        class="absolute top-5 left-5 inline-flex items-center gap-2 text-sm font-semibold text-text-secondary hover:text-primary transition-colors group z-10">
+        <svg width="18" height="18" class="w-5 h-5 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor"
+            viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
         </svg>
-        <span class="font-medium">Back to Shop</span>
+        Back to shop
     </a>
-    
-    <div class="card-enter w-full max-w-md">
-        <div class="bg-surface rounded-3xl shadow-2xl p-8 md:p-10 border border-border relative overflow-hidden">
-            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-secondary to-accent"></div>
-            
+
+    <div class="w-full max-w-md relative z-10 animate-fade-in">
+        <div class="bg-surface rounded-4xl shadow-xl p-7 md:p-10 border border-border relative overflow-hidden">
+            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-secondary to-accent"
+                aria-hidden="true"></div>
+
             <div class="text-center mb-8">
-                <div class="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-primary-subtle to-primary-light rounded-2xl flex items-center justify-center lock-icon shadow-lg">
-                    <svg class="w-10 h-10 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                <div
+                    class="w-[72px] h-[72px] mx-auto mb-4 bg-gradient-to-br from-primary-subtle to-primary-light rounded-2xl flex items-center justify-center shadow-md animate-float">
+                    <svg width="18" height="18" class="w-9 h-9 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                        aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                     </svg>
                 </div>
-                <h1 class="font-serif text-3xl font-bold text-text mb-2">Admin Access</h1>
-                <p class="text-text-muted text-sm">Sign in to manage your store</p>
+                <h1 class="font-serif text-3xl font-bold text-text mb-1">Admin access</h1>
+                <p class="text-sm text-text-muted">Sign in to manage products and orders</p>
+                <p id="next-notice"
+                    class="hidden mt-4 px-4 py-2.5 bg-warning-light border border-warning/30 rounded-xl text-xs font-semibold text-warning-dark">
+                </p>
             </div>
-            
-            <form id="login-form" class="space-y-6">
+
+            <form id="login-form" class="space-y-5" novalidate>
                 <div class="input-group">
-                    <input 
-                        type="email" 
-                        id="email" 
-                        placeholder=" "
-                        class="w-full px-4 py-4 bg-transparent border-2 border-border rounded-xl text-text outline-none"
-                        required
-                        autocomplete="email"
-                    >
-                    <label for="email">Email Address</label>
-                    <svg class="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"/>
+                    <input type="email" id="email" placeholder=" " required autocomplete="email"
+                        class="w-full px-4 py-4 pr-12 bg-surface border-2 border-border-strong rounded-xl text-text outline-none">
+                    <label for="email">Email address</label>
+                    <svg width="18" height="18" class="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted pointer-events-none"
+                        fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
                 </div>
-                
+
                 <div class="input-group">
-                    <input 
-                        type="password" 
-                        id="password" 
-                        placeholder=" "
-                        class="w-full px-4 py-4 bg-transparent border-2 border-border rounded-xl text-text outline-none"
-                        required
-                        autocomplete="current-password"
-                    >
+                    <input type="password" id="password" placeholder=" " required autocomplete="current-password"
+                        class="w-full px-4 py-4 pr-12 bg-surface border-2 border-border-strong rounded-xl text-text outline-none">
                     <label for="password">Password</label>
-                    <button type="button" onclick="togglePassword()" class="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted hover:text-primary transition-colors">
-                        <svg id="eye-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                    <button type="button" id="toggle-password"
+                        class="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded-lg text-text-muted hover:text-primary transition-colors"
+                        aria-label="Show password" aria-pressed="false">
+                        <svg width="18" height="18" id="eye-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                            aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                         </svg>
                     </button>
                 </div>
-                
-                <div class="flex items-center justify-between text-sm">
-                    <label class="flex items-center gap-2 cursor-pointer group">
-                        <input type="checkbox" class="w-4 h-4 rounded border-border text-primary focus:ring-primary">
-                        <span class="text-text-secondary group-hover:text-text transition-colors">Remember me</span>
-                    </label>
-                    <a href="#" class="text-primary hover:text-primary-dark font-medium transition-colors">Forgot password?</a>
-                </div>
-                
-                <button 
-                    type="submit" 
-                    id="submit-btn"
-                    class="btn-shine w-full py-4 bg-gradient-to-r from-primary to-primary-dark text-white font-bold rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300 flex items-center justify-center gap-2"
-                >
-                    <span id="btn-text">Sign In</span>
-                    <svg id="btn-spinner" class="w-5 h-5 spinner hidden" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+
+                <label class="switch">
+                    <input type="checkbox" id="remember-me" checked>
+                    <span class="track" aria-hidden="true"></span>
+                    <span>Keep me signed in on this device</span>
+                </label>
+
+                <button type="submit" id="submit-btn" class="btn btn-primary btn-shine btn-lg w-full">
+                    <span id="btn-text">Sign in</span>
+                    <svg width="18" height="18" id="btn-spinner" class="w-5 h-5 spinner hidden" fill="none" viewBox="0 0 24 24"
+                        aria-hidden="true">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                        </circle>
+                        <path class="opacity-75" fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                        </path>
                     </svg>
                 </button>
             </form>
-            
-            <div id="error-msg" class="hidden mt-4 p-4 bg-error/5 border border-error/20 rounded-xl">
-                <div class="flex items-center gap-3">
-                    <svg class="w-5 h-5 text-error flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+
+            <div id="error-msg" class="hidden mt-4 p-4 bg-error-light border border-error/30 rounded-xl"
+                role="alert">
+                <div class="flex items-start gap-3">
+                    <svg width="18" height="18" class="w-5 h-5 text-error-dark shrink-0 mt-0.5" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <p class="text-sm text-error font-medium"></p>
+                    <p class="text-sm text-error-dark font-semibold"></p>
                 </div>
             </div>
-            
-            <div class="mt-6 flex items-center justify-center gap-2 text-xs text-text-muted">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+
+            <div class="mt-6 flex items-center justify-center gap-2 text-[11px] text-text-muted">
+                <svg width="18" height="18" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                 </svg>
-                <span>Secure, encrypted connection</span>
+                Secure, encrypted connection
             </div>
         </div>
-        
-        <p class="text-center mt-6 text-sm text-text-muted">
-            &copy; 2026 Jannat Baking Tools. All rights reserved.
-        </p>
+
+        <p class="text-center mt-6 text-xs text-text-muted">&copy; 2026 Jannat Baking Tools. All rights reserved.</p>
     </div>
-    
+
     <script type="module">
-        import { auth, signInWithEmailAndPassword, onAuthStateChanged } from "./js/firebase.js";
-        
-        // Check if already logged in
+        import {
+            auth,
+            signInWithEmailAndPassword,
+            onAuthStateChanged,
+            setPersistence,
+            browserLocalPersistence,
+            browserSessionPersistence
+        } from './js/firebase.js';
+
+        // Only ever redirect to a known admin page (prevents open-redirects).
+        const ALLOWED_NEXT = ['orders.html', 'admin.html'];
+
+        function nextTarget() {
+            try {
+                const value = new URLSearchParams(window.location.search).get('next') || '';
+                return ALLOWED_NEXT.indexOf(value) > -1 ? value : 'orders.html';
+            } catch (err) {
+                return 'orders.html';
+            }
+        }
+
+        let redirecting = false;
+
+        // Explain the bounce when the auth guard sent the user here, so a
+        // protected page never looks like it simply failed to load.
+        (function showNextNotice() {
+            const PAGE_NAMES = { 'admin.html': 'Product Manager', 'orders.html': 'Order Dashboard' };
+            try {
+                const requested = new URLSearchParams(window.location.search).get('next') || '';
+                const name = PAGE_NAMES[requested];
+                if (!name) return;
+                const notice = document.getElementById('next-notice');
+                if (!notice) return;
+                notice.textContent = 'Please sign in to continue to the ' + name + '.';
+                notice.classList.remove('hidden');
+            } catch (err) {
+                /* ignore */
+            }
+        })();
+
         onAuthStateChanged(auth, (user) => {
-            if (user) {
-                window.location.href = 'orders.html';
+            if (user && !redirecting) {
+                redirecting = true;
+                window.location.replace(nextTarget());
             }
         });
-        
-        // Toggle password visibility
-        window.togglePassword = function() {
-            const passwordInput = document.getElementById('password');
-            const eyeIcon = document.getElementById('eye-icon');
-            
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                eyeIcon.innerHTML = `
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
-                `;
-            } else {
-                passwordInput.type = 'password';
-                eyeIcon.innerHTML = `
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                `;
+
+        const passwordInput = document.getElementById('password');
+        const toggleBtn = document.getElementById('toggle-password');
+        const eyeIcon = document.getElementById('eye-icon');
+
+        const EYE_OPEN = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>';
+        const EYE_OFF = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>';
+
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', () => {
+                const showing = passwordInput.type === 'text';
+                passwordInput.type = showing ? 'password' : 'text';
+                eyeIcon.innerHTML = showing ? EYE_OPEN : EYE_OFF;
+                toggleBtn.setAttribute('aria-pressed', String(!showing));
+                toggleBtn.setAttribute('aria-label', showing ? 'Show password' : 'Hide password');
+            });
+        }
+
+        function showError(message) {
+            const box = document.getElementById('error-msg');
+            if (!box) return;
+            box.querySelector('p').textContent = message;
+            box.classList.remove('hidden');
+            box.classList.add('animate-shake');
+            setTimeout(() => box.classList.remove('animate-shake'), 420);
+        }
+
+        function messageFor(code) {
+            switch (code) {
+                case 'auth/invalid-email':
+                    return 'That email address is not valid.';
+                case 'auth/user-disabled':
+                    return 'This account has been disabled.';
+                case 'auth/user-not-found':
+                case 'auth/wrong-password':
+                case 'auth/invalid-credential':
+                case 'auth/invalid-login-credentials':
+                    return 'Incorrect email or password.';
+                case 'auth/too-many-requests':
+                    return 'Too many attempts. Please wait a few minutes and try again.';
+                case 'auth/network-request-failed':
+                    return 'Network error. Check your connection and try again.';
+                default:
+                    return 'Could not sign you in. Please try again.';
             }
-        };
-        
-        // Form submission
-        document.getElementById('login-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const email = document.getElementById('email').value;
+        }
+
+        document.getElementById('login-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
+            const remember = document.getElementById('remember-me').checked;
+
             const submitBtn = document.getElementById('submit-btn');
             const btnText = document.getElementById('btn-text');
             const btnSpinner = document.getElementById('btn-spinner');
-            const errorMsg = document.getElementById('error-msg');
-            
-            // Show loading state
+            const errorBox = document.getElementById('error-msg');
+
+            if (!email || !password) {
+                showError('Enter both your email and password.');
+                return;
+            }
+
             submitBtn.disabled = true;
-            btnText.textContent = 'Signing in...';
+            btnText.textContent = 'Signing in…';
             btnSpinner.classList.remove('hidden');
-            errorMsg.classList.add('hidden');
-            
+            errorBox.classList.add('hidden');
+
             try {
+                await setPersistence(auth, remember ? browserLocalPersistence : browserSessionPersistence);
                 await signInWithEmailAndPassword(auth, email, password);
-                
-                // Success - redirect
+
                 btnText.textContent = 'Success!';
-                submitBtn.classList.remove('from-primary', 'to-primary-dark');
-                submitBtn.classList.add('from-success', 'to-green-600');
-                
-                setTimeout(() => {
-                    window.location.href = 'orders.html';
-                }, 500);
-                
-            } catch (error) {
-                console.error("Login error:", error);
-                
-                submitBtn.disabled = false;
-                btnText.textContent = 'Sign In';
                 btnSpinner.classList.add('hidden');
-                
-                // Show error
-                errorMsg.classList.remove('hidden');
-                errorMsg.classList.add('error-shake');
-                
-                let errorText = "Invalid credentials.";
-                if (error.code === 'auth/user-not-found') {
-                    errorText = "No account found with this email.";
-                } else if (error.code === 'auth/wrong-password') {
-                    errorText = "Incorrect password.";
-                } else if (error.code === 'auth/invalid-email') {
-                    errorText = "Please enter a valid email address.";
-                }
-                
-                errorMsg.querySelector('p').textContent = errorText;
-                
-                setTimeout(() => {
-                    errorMsg.classList.remove('error-shake');
-                }, 400);
+                redirecting = true;
+                window.location.replace(nextTarget());
+            } catch (error) {
+                console.error('[login] failed', error && error.code);
+                submitBtn.disabled = false;
+                btnText.textContent = 'Sign in';
+                btnSpinner.classList.add('hidden');
+                showError(messageFor(error && error.code));
             }
         });
     </script>
 </body>
+
 </html>

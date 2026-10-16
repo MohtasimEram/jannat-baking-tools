@@ -1,0 +1,15 @@
+# Dependencies
+node_modules/
+
+# Local env / secrets (Telegram bot token etc. belong here, never in code)
+.env
+.env.*
+!.env.example
+
+# Vercel
+.vercel
+
+# Editor / OS noise
+.DS_Store
+Thumbs.db
+*.log

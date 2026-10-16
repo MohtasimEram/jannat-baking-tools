@@ -1,0 +1,103 @@
+// ========================================================================
+// FIRESTORE SECURITY RULES — Jannat Baking Tools 2.0
+//
+// This file documents the rules the project expects. It is NOT applied
+// automatically: paste it into
+//   Firebase console -> Firestore Database -> Rules -> Publish
+// (or deploy with `firebase deploy --only firestore:rules`).
+//
+// What it fixes compared with wide-open rules:
+//   * Nobody can edit product names, prices or descriptions without being
+//     signed in as an admin.
+//   * The storefront may only *decrease* product stock, and only the
+//     `stock` field, so a visitor cannot grant themselves free inventory
+//     or rewrite a price before checking out.
+//   * Orders can be created by customers but only read-only shaped data is
+//     accepted, and only an authenticated admin can change or delete them.
+//
+// PRIVACY NOTE: the public "Track Order" page looks orders up by phone
+// number, so `orders` needs public read access. That means someone who
+// guesses a phone number can see that order. If you need stronger privacy,
+// move tracking behind a Cloud Function and change the orders read rule to
+// `allow read: if request.auth != null;`.
+// ========================================================================
+
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------------- helpers ----------------
+    function isAdmin() {
+      return request.auth != null;
+    }
+
+    function isNumber(value) {
+      return value is int || value is float;
+    }
+
+    // ---------------- products ----------------
+    match /products/{productId} {
+
+      // Only the `stock` field changed, it is still a non-negative integer,
+      // and it did not go up. This is what checkout needs and nothing more.
+      function isStockDecrease() {
+        return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['stock'])
+          && request.resource.data.stock is int
+          && request.resource.data.stock >= 0
+          && request.resource.data.stock <= resource.data.stock;
+      }
+
+      function isValidProduct() {
+        return request.resource.data.name is string
+          && request.resource.data.name.size() > 1
+          && request.resource.data.name.size() <= 140
+          && isNumber(request.resource.data.price)
+          && request.resource.data.price >= 0
+          && request.resource.data.stock is int
+          && request.resource.data.stock >= 0;
+      }
+
+      allow read: if true;
+      allow create: if isAdmin() && isValidProduct();
+      allow update: if (isAdmin() && isValidProduct()) || isStockDecrease();
+      allow delete: if isAdmin();
+    }
+
+    // ---------------- orders ----------------
+    match /orders/{orderId} {
+
+      function isValidOrder() {
+        let data = request.resource.data;
+        return data.keys().hasAll(['customer', 'cart', 'total', 'status', 'date'])
+          && data.status == 'Pending'
+          && data.customer is map
+          && data.customer.name is string
+          && data.customer.name.size() > 1
+          && data.customer.name.size() <= 80
+          && data.customer.phone is string
+          && data.customer.phone.matches('^01[0-9]{9}$')
+          && data.customer.address is string
+          && data.customer.address.size() >= 5
+          && data.customer.address.size() <= 300
+          && data.cart is list
+          && data.cart.size() > 0
+          && data.cart.size() <= 60
+          && data.total is string
+          && (!('notes' in data) || (data.notes is string && data.notes.size() <= 500))
+          && (!('orderCode' in data) || (data.orderCode is string && data.orderCode.size() <= 24))
+          && data.date == request.time;
+      }
+
+      // Required by the public Track Order page — see the privacy note above.
+      allow read: if true;
+      allow create: if isValidOrder();
+      allow update, delete: if isAdmin();
+    }
+
+    // Everything else is closed by default.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

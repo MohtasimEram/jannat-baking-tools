@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin.html
+Disallow: /orders.html
+Disallow: /login.html
+Disallow: /api/
+
+Sitemap: https://jannatbakingtools.vercel.app/sitemap.xml

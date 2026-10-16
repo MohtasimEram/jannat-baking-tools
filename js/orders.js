@@ -1,424 +1,571 @@
-// ========================================
-// JANNAT BAKING TOOLS - ORDERS JS
-// Order management with Firebase
-// ========================================
+// ========================================================================
+// JANNAT BAKING TOOLS 2.0 — ADMIN ORDER DASHBOARD
+// ========================================================================
 
-import { 
-    db,
-    collection, 
-    doc, 
-    getDocs, 
-    updateDoc, 
-    query, 
-    where, 
-    orderBy,
-    onSnapshot
-} from "./firebase.js";
+import { db, collection, doc, updateDoc, query, orderBy, onSnapshot } from './firebase.js';
+import {
+    escapeHtml,
+    escapeAttr,
+    formatBDT,
+    formatDate,
+    toDate,
+    safeImage,
+    responsiveImgAttrs,
+    sanitizeText
+} from './store.js';
+import { showToast } from './ui.js';
 
-// ========================================
-// STATE
-// ========================================
+/* ------------------------------------------------------------------ */
+/* State                                                               */
+/* ------------------------------------------------------------------ */
+
 let allOrders = [];
-let currentFilter = 'all';
-let currentDateRange = 'all';
+let statusFilter = 'all';
+let dateRange = 'all';
 let searchTerm = '';
 let pendingAction = null;
+let unsubscribe = null;
 
-// ========================================
-// INITIALIZE
-// ========================================
+/* ------------------------------------------------------------------ */
+/* Boot                                                               */
+/* ------------------------------------------------------------------ */
+
 document.addEventListener('DOMContentLoaded', () => {
-    loadOrders();
+    bindControls();
+    subscribeOrders();
 });
 
-// ========================================
-// LOAD ORDERS
-// ========================================
-async function loadOrders() {
+function subscribeOrders() {
     try {
-        const ordersRef = collection(db, "orders");
-        const q = query(ordersRef, orderBy("date", "desc"));
-        
-        onSnapshot(q, (snapshot) => {
-            allOrders = snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            }));
-            
-            updateStats();
-            renderOrders();
-        }, (error) => {
-            console.error("Error loading orders:", error);
-            showToast("Failed to load orders", "error");
-        });
-        
+        if (typeof unsubscribe === 'function') unsubscribe();
+        const ordersQuery = query(collection(db, 'orders'), orderBy('date', 'desc'));
+        unsubscribe = onSnapshot(
+            ordersQuery,
+            (snapshot) => {
+                allOrders = snapshot.docs.map((docSnap) => normalizeOrder(docSnap.id, docSnap.data()));
+                updateStats();
+                renderOrders();
+            },
+            (error) => {
+                console.error('[orders] listener error', error);
+                showToast('Failed to load orders. Check your connection.', 'error');
+                const container = document.getElementById('orders-container');
+                if (container) {
+                    container.innerHTML =
+                        '<div class="panel p-10 text-center"><p class="text-sm text-text-muted">Could not load orders.</p></div>';
+                }
+            }
+        );
     } catch (error) {
-        console.error("Error setting up orders listener:", error);
+        console.error('[orders] subscription failed', error);
     }
 }
 
-// ========================================
-// UPDATE STATISTICS
-// ========================================
+/* ------------------------------------------------------------------ */
+/* Normalisation (tolerates 1.0 and 2.0 order documents)               */
+/* ------------------------------------------------------------------ */
+
+function amountFrom(value) {
+    if (typeof value === 'number' && Number.isFinite(value)) return value;
+    const digits = String(value || '').replace(/[^\d]/g, '');
+    return digits ? Number(digits) : 0;
+}
+
+function normalizeOrder(id, data) {
+    const raw = data || {};
+    const totals = raw.totals && typeof raw.totals === 'object' ? raw.totals : {};
+    const customer = raw.customer && typeof raw.customer === 'object' ? raw.customer : {};
+    const payment = raw.payment && typeof raw.payment === 'object' ? raw.payment : {};
+    const status = ['Pending', 'Delivered', 'Cancelled'].indexOf(raw.status) > -1 ? raw.status : 'Pending';
+
+    const items = Array.isArray(raw.cart)
+        ? raw.cart.map((item) => ({
+            name: sanitizeText(item && item.name, 140) || 'Item',
+            qty: Math.max(1, Math.trunc(Number(item && item.qty) || 1)),
+            price: Math.max(0, Math.round(Number(item && item.price) || 0)),
+            color: sanitizeText(item && item.color, 40),
+            image: item && item.image ? String(item.image) : '',
+            productId: item && item.productId ? String(item.productId) : ''
+        }))
+        : [];
+
+    const subtotal = Number.isFinite(totals.subtotal)
+        ? totals.subtotal
+        : items.reduce((sum, item) => sum + item.price * item.qty, 0);
+    const delivery = Number.isFinite(totals.delivery) ? totals.delivery : amountFrom(raw.deliveryFee);
+    const total = Number.isFinite(totals.total) ? totals.total : amountFrom(raw.total) || subtotal + delivery;
+
+    return {
+        id: String(id),
+        code: sanitizeText(raw.orderCode, 24) || 'JB-' + String(id).slice(-6).toUpperCase(),
+        status,
+        customer: {
+            name: sanitizeText(customer.name, 80) || 'Unknown',
+            phone: sanitizeText(customer.phone, 24),
+            address: sanitizeText(customer.address, 300),
+            location: sanitizeText(customer.location, 40)
+        },
+        items,
+        itemCount: items.reduce((sum, item) => sum + item.qty, 0),
+        subtotal,
+        delivery,
+        total,
+        notes: sanitizeText(raw.notes, 500),
+        paymentMethod: sanitizeText(payment.method, 60) || 'Cash on Delivery',
+        trxId: sanitizeText(payment.trxId, 60),
+        date: toDate(raw.date)
+    };
+}
+
+/* ------------------------------------------------------------------ */
+/* Stats                                                               */
+/* ------------------------------------------------------------------ */
+
 function updateStats() {
     const revenue = allOrders
-        .filter(o => o.status === 'Delivered')
-        .reduce((sum, o) => {
-            const amount = parseInt(o.total?.replace(/[^0-9]/g, '') || 0);
-            return sum + amount;
-        }, 0);
+        .filter((order) => order.status === 'Delivered')
+        .reduce((sum, order) => sum + order.total, 0);
+    const pending = allOrders.filter((order) => order.status === 'Pending').length;
 
-    const pending = allOrders.filter(o => o.status === 'Pending').length;
-    const total = allOrders.length;
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+    const todayCount = allOrders.filter((order) => order.date && order.date >= startOfToday).length;
 
-    // Today's orders
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const todayCount = allOrders.filter(o => {
-        const date = o.date?.toDate ? o.date.toDate() : new Date(o.date);
-        return date >= today;
-    }).length;
+    setText('total-revenue', formatBDT(revenue));
+    setText('pending-count', String(pending));
+    setText('total-orders', String(allOrders.length));
+    setText('today-count', String(todayCount));
 
-    document.getElementById('total-revenue').textContent = `৳ ${revenue.toLocaleString()}`;
-    document.getElementById('pending-count').textContent = pending;
-    document.getElementById('total-orders').textContent = total;
-    document.getElementById('today-count').textContent = todayCount;
-
-    // Update badges
-    const badge = document.getElementById('pending-badge');
-    const tabBadge = document.getElementById('tab-pending-count');
-    if (pending > 0) {
-        badge.textContent = pending;
-        badge.classList.remove('hidden');
-        tabBadge.textContent = pending;
-        tabBadge.classList.remove('hidden');
-    } else {
-        badge.classList.add('hidden');
-        tabBadge.classList.add('hidden');
-    }
+    [document.getElementById('pending-badge'), document.getElementById('tab-pending-count')].forEach((badge) => {
+        if (!badge) return;
+        badge.textContent = String(pending);
+        badge.classList.toggle('hidden', pending === 0);
+    });
 }
 
-// ========================================
-// SEARCH ORDERS
-// ========================================
-window.searchOrders = function() {
-    // Support both desktop and mobile search inputs
-    const desktopInput = document.getElementById('order-search');
-    const mobileInput = document.getElementById('order-search-mobile');
-    searchTerm = (desktopInput?.value || mobileInput?.value || '').toLowerCase();
-    renderOrders();
-};
+/* ------------------------------------------------------------------ */
+/* Filtering                                                           */
+/* ------------------------------------------------------------------ */
 
-// ========================================
-// DATE RANGE FILTER
-// ========================================
-window.filterByDate = function(range) {
-    currentDateRange = range;
-    
-    // Update active pill
-    document.querySelectorAll('.date-pill').forEach(pill => {
-        pill.classList.toggle('active', pill.dataset.range === range);
-    });
-    
-    renderOrders();
-};
-
-function getDateFilteredOrders(orders) {
-    if (currentDateRange === 'all') return orders;
-    
+function rangeStart() {
     const now = new Date();
-    let startDate;
-    
-    switch (currentDateRange) {
+    switch (dateRange) {
         case 'today':
-            startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-            break;
+            return new Date(now.getFullYear(), now.getMonth(), now.getDate());
         case 'week':
-            startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-            break;
+            return new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
         case 'month':
-            startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-            break;
+            return new Date(now.getFullYear(), now.getMonth(), 1);
         default:
-            return orders;
+            return null;
     }
-    
-    return orders.filter(o => {
-        const date = o.date?.toDate ? o.date.toDate() : new Date(o.date);
-        return date >= startDate;
-    });
 }
 
-// ========================================
-// RENDER ORDERS
-// ========================================
+function visibleOrders() {
+    let list = allOrders.slice();
+
+    if (statusFilter !== 'all') {
+        list = list.filter((order) => order.status.toLowerCase() === statusFilter);
+    }
+
+    const start = rangeStart();
+    if (start) list = list.filter((order) => order.date && order.date >= start);
+
+    if (searchTerm) {
+        list = list.filter((order) => {
+            const haystack = (
+                order.customer.name +
+                ' ' +
+                order.customer.phone +
+                ' ' +
+                order.code +
+                ' ' +
+                order.id +
+                ' ' +
+                order.items.map((item) => item.name).join(' ')
+            ).toLowerCase();
+            return haystack.includes(searchTerm);
+        });
+    }
+
+    return list;
+}
+
+/* ------------------------------------------------------------------ */
+/* Rendering                                                           */
+/* ------------------------------------------------------------------ */
+
+const STATUS_META = {
+    Pending: {
+        cls: 'status-pending',
+        icon: '<svg width="18" height="18" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>'
+    },
+    Delivered: {
+        cls: 'status-delivered',
+        icon: '<svg width="18" height="18" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>'
+    },
+    Cancelled: {
+        cls: 'status-cancelled',
+        icon: '<svg width="18" height="18" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>'
+    }
+};
+
 function renderOrders() {
     const container = document.getElementById('orders-container');
+    if (!container) return;
 
-    let filtered = allOrders;
-    
-    // Apply status filter
-    if (currentFilter !== 'all') {
-        if (currentFilter === 'history') {
-            filtered = filtered.filter(o => o.status === 'Delivered' || o.status === 'Cancelled');
-        } else {
-            filtered = filtered.filter(o => o.status.toLowerCase() === currentFilter);
-        }
-    }
-    
-    // Apply date range filter
-    filtered = getDateFilteredOrders(filtered);
-    
-    // Apply search
-    if (searchTerm) {
-        filtered = filtered.filter(o => 
-            (o.customer?.name || '').toLowerCase().includes(searchTerm) ||
-            (o.customer?.phone || '').toLowerCase().includes(searchTerm)
-        );
-    }
+    const list = visibleOrders();
 
-    if (filtered.length === 0) {
+    if (!list.length) {
         container.innerHTML = `
-            <div class="empty-state text-center py-16">
-                <div class="empty-icon w-24 h-24 mx-auto mb-6 bg-bg-alt rounded-full flex items-center justify-center">
-                    <svg class="w-12 h-12 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                    </svg>
-                </div>
-                <h3 class="font-serif text-xl font-semibold text-text mb-2">No orders found</h3>
-                <p class="text-text-muted">${searchTerm ? 'No orders match your search.' : `No ${currentFilter} orders at the moment.`}</p>
-            </div>
-        `;
+<div class="panel p-12 text-center">
+    <div class="empty-state-icon">
+        <svg width="18" height="18" class="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+        </svg>
+    </div>
+    <h2 class="font-serif text-lg font-bold text-text mb-2">No orders found</h2>
+    <p class="text-sm text-text-muted">${searchTerm ? 'No orders match your search.' : 'Nothing here for the selected filters.'}</p>
+</div>`;
         return;
     }
 
-    container.innerHTML = filtered.map(order => {
-        const statusClass = {
-            'Pending': 'status-pending',
-            'Delivered': 'status-delivered',
-            'Cancelled': 'status-cancelled'
-        }[order.status] || 'status-pending';
-
-        const statusIcon = {
-            'Pending': '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>',
-            'Delivered': '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>',
-            'Cancelled': '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>'
-        }[order.status] || '';
-
-        const itemsList = (order.cart || []).map(item => `
-            <div class="flex justify-between text-sm py-1.5 border-b border-dashed border-border last:border-0">
-                <span class="text-text-secondary">${item.name} <span class="text-text-muted">×${item.qty}</span></span>
-                <span class="font-medium text-text">৳${item.price * item.qty}</span>
-            </div>
-        `).join('');
-
-        const date = order.date?.toDate ? order.date.toDate() : new Date(order.date);
-        const dateStr = date.toLocaleDateString('en-US', {
-            month: 'short',
-            day: 'numeric',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-
-        return `
-            <div class="order-card bg-surface rounded-2xl p-6 border border-border mb-4">
-                <div class="flex flex-col lg:flex-row lg:items-start gap-4">
-                    <div class="flex-1">
-                        <div class="flex flex-wrap items-start justify-between gap-4 mb-4">
-                            <div>
-                                <div class="flex items-center gap-3 mb-1">
-                                    <h3 class="font-serif text-lg font-bold text-text">${order.customer?.name || 'Unknown'}</h3>
-                                    <span class="${statusClass} inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold">
-                                        ${statusIcon}
-                                        ${order.status}
-                                    </span>
-                                </div>
-                                <p class="text-sm text-text-secondary">${order.customer?.phone || 'No phone'}</p>
-                                <p class="text-sm text-text-muted mt-1">${order.customer?.address || 'No address'}${order.customer?.location ? ` • ${order.customer.location}` : ''}</p>
-                            </div>
-                            <div class="text-right">
-                                <p class="font-serif text-2xl font-bold text-primary">${order.total}</p>
-                                <p class="text-xs text-text-muted mt-1">${dateStr}</p>
-                                ${order.deliveryFee ? `<p class="text-xs text-text-muted">Delivery: ${order.deliveryFee}</p>` : ''}
-                            </div>
-                        </div>
-                        
-                        <div class="bg-bg-alt rounded-xl p-4 mb-4">
-                            <p class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">Order Items</p>
-                            ${itemsList || '<p class="text-sm text-text-muted">No items</p>'}
-                        </div>
-
-                        ${order.notes ? `
-                        <div class="bg-accent/5 rounded-xl p-4 mb-4 border border-accent/20">
-                            <p class="text-xs font-semibold text-accent uppercase tracking-wider mb-1">Customer Note</p>
-                            <p class="text-sm text-text-secondary">${order.notes}</p>
-                        </div>
-                        ` : ''}
-                        
-                        <div class="flex items-center gap-4 text-sm">
-                            <span class="text-text-muted">Payment:</span>
-                            <span class="font-medium text-text capitalize">${order.payment?.method || 'Unknown'}</span>
-                            ${order.payment?.trxId ? `<span class="text-xs bg-accent/10 text-accent px-2 py-0.5 rounded">Trx: ${order.payment.trxId}</span>` : ''}
-                        </div>
-                    </div>
-                    
-                    ${order.status === 'Pending' ? `
-                        <div class="flex lg:flex-col gap-2">
-                            <button onclick="showConfirmModal('deliver', '${order.id}')" 
-                                    class="btn-action flex items-center gap-2 px-4 py-2 bg-success text-white rounded-xl text-sm font-semibold hover:bg-success/90">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                                </svg>
-                                Deliver
-                            </button>
-                            <button onclick="showConfirmModal('cancel', '${order.id}')" 
-                                    class="btn-action flex items-center gap-2 px-4 py-2 bg-error/10 text-error rounded-xl text-sm font-semibold hover:bg-error/20">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                </svg>
-                                Cancel
-                            </button>
-                        </div>
-                    ` : ''}
-                </div>
-            </div>
-        `;
-    }).join('');
+    container.innerHTML = list.map(orderCardHTML).join('');
 }
 
-// ========================================
-// FILTER ORDERS
-// ========================================
-window.filterOrders = function(filter) {
-    currentFilter = filter;
+function orderCardHTML(order) {
+    const meta = STATUS_META[order.status] || STATUS_META.Pending;
+    const phoneDigits = order.customer.phone.replace(/[^\d]/g, '');
+    const waNumber = phoneDigits.startsWith('880') ? phoneDigits : '88' + phoneDigits;
 
-    document.querySelectorAll('.filter-tab').forEach(tab => {
-        tab.classList.toggle('active', tab.dataset.filter === filter);
+    const itemsHTML = order.items.length
+        ? order.items
+            .map(
+                (item) => `
+<div class="flex items-center gap-3 py-2 border-b border-dashed border-border-strong last:border-0">
+    ${item.image
+                        ? `<img ${responsiveImgAttrs(item.image, { width: 72, widths: [72, 144], sizes: '36px' })} alt="" class="w-9 h-9 rounded-lg object-cover bg-surface shrink-0" loading="lazy" decoding="async">`
+                        : '<span class="w-9 h-9 rounded-lg bg-surface border border-border flex items-center justify-center text-[10px] font-bold text-text-muted shrink-0">' + item.qty + '×</span>'}
+    <div class="flex-1 min-w-0">
+        <p class="text-sm font-semibold text-text truncate">${escapeHtml(item.name)}</p>
+        <p class="text-[11px] text-text-muted">
+            ${item.qty} × ${formatBDT(item.price)}${item.color ? ' · ' + escapeHtml(item.color) : ''}
+        </p>
+    </div>
+    <p class="text-sm font-bold text-text shrink-0">${formatBDT(item.price * item.qty)}</p>
+</div>`
+            )
+            .join('')
+        : '<p class="text-sm text-text-muted">No items recorded</p>';
+
+    return `
+<article class="order-card">
+    <div class="flex flex-col lg:flex-row lg:items-start gap-4">
+        <div class="flex-1 min-w-0">
+            <div class="flex flex-wrap items-start justify-between gap-3 mb-4">
+                <div class="min-w-0">
+                    <div class="flex items-center gap-2 flex-wrap mb-1">
+                        <span class="font-mono text-xs font-bold text-text-muted">${escapeHtml(order.code)}</span>
+                        <span class="${meta.cls} inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold">
+                            ${meta.icon}${escapeHtml(order.status)}
+                        </span>
+                    </div>
+                    <h3 class="font-serif text-lg font-bold text-text truncate">${escapeHtml(order.customer.name)}</h3>
+                    <div class="flex items-center gap-3 flex-wrap mt-1">
+                        ${order.customer.phone
+            ? `<a href="tel:${escapeAttr(order.customer.phone)}" class="text-sm font-semibold text-accent hover:text-accent-dark transition-colors">${escapeHtml(order.customer.phone)}</a>
+                               <a href="https://wa.me/${escapeAttr(waNumber)}" target="_blank" rel="noopener noreferrer"
+                                  class="text-xs font-bold text-success-dark hover:underline">WhatsApp</a>`
+            : '<span class="text-sm text-text-muted">No phone</span>'}
+                    </div>
+                    <p class="text-sm text-text-muted mt-1 break-words">
+                        ${escapeHtml(order.customer.address || 'No address')}${order.customer.location ? ' · <span class="font-semibold">' + escapeHtml(order.customer.location) + '</span>' : ''}
+                    </p>
+                </div>
+                <div class="text-right shrink-0">
+                    <p class="order-total">${formatBDT(order.total)}</p>
+                    <p class="text-[11px] text-text-muted mt-1">${escapeHtml(formatDate(order.date))}</p>
+                    <p class="text-[11px] text-text-muted">${order.itemCount} item${order.itemCount === 1 ? '' : 's'} · delivery ${formatBDT(order.delivery)}</p>
+                </div>
+            </div>
+
+            <div class="order-items">
+                <p class="text-[10px] font-bold text-text-muted uppercase tracking-[0.12em] mb-1">Order items</p>
+                ${itemsHTML}
+            </div>
+
+            ${order.notes
+            ? `<div class="bg-accent-light/60 rounded-xl p-3 mb-4 border border-accent/20">
+                       <p class="text-[10px] font-bold text-accent-dark uppercase tracking-[0.12em] mb-1">Customer note</p>
+                       <p class="text-sm text-text-secondary break-words">${escapeHtml(order.notes)}</p>
+                   </div>`
+            : ''}
+
+            <div class="flex items-center gap-2 text-xs flex-wrap">
+                <span class="text-text-muted">Payment</span>
+                <span class="font-bold text-text">${escapeHtml(order.paymentMethod)}</span>
+                ${order.trxId ? `<span class="badge badge-neutral">Trx: ${escapeHtml(order.trxId)}</span>` : ''}
+            </div>
+        </div>
+
+        ${order.status === 'Pending'
+            ? `<div class="flex lg:flex-col gap-2 shrink-0">
+                   <button type="button" class="btn-action inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-success text-white rounded-xl text-sm font-bold hover:brightness-95 flex-1 lg:flex-none"
+                           data-order-action="deliver" data-id="${escapeAttr(order.id)}">
+                       <svg width="18" height="18" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                       </svg>
+                       Delivered
+                   </button>
+                   <button type="button" class="btn-action inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-error-light text-error-dark rounded-xl text-sm font-bold hover:brightness-95 flex-1 lg:flex-none"
+                           data-order-action="cancel" data-id="${escapeAttr(order.id)}">
+                       <svg width="18" height="18" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                       </svg>
+                       Cancel
+                   </button>
+               </div>`
+            : ''}
+    </div>
+</article>`;
+}
+
+/* ------------------------------------------------------------------ */
+/* Controls                                                            */
+/* ------------------------------------------------------------------ */
+
+function bindControls() {
+    ['order-search', 'order-search-mobile'].forEach((id) => {
+        const input = document.getElementById(id);
+        if (!input) return;
+        input.addEventListener('input', () => {
+            searchTerm = input.value.trim().toLowerCase();
+            ['order-search', 'order-search-mobile'].forEach((otherId) => {
+                if (otherId === id) return;
+                const other = document.getElementById(otherId);
+                if (other && other.value !== input.value) other.value = input.value;
+            });
+            renderOrders();
+        });
     });
 
-    renderOrders();
-};
+    document.querySelectorAll('.date-pill').forEach((pill) => {
+        pill.addEventListener('click', () => {
+            dateRange = pill.dataset.range || 'all';
+            document.querySelectorAll('.date-pill').forEach((other) => {
+                other.classList.toggle('active', other === pill);
+            });
+            renderOrders();
+        });
+    });
 
-// ========================================
-// CONFIRM MODAL
-// ========================================
-window.showConfirmModal = function(action, orderId) {
-    pendingAction = { action, orderId };
+    document.querySelectorAll('.filter-tab').forEach((tab) => {
+        tab.addEventListener('click', () => {
+            statusFilter = tab.dataset.filter || 'all';
+            document.querySelectorAll('.filter-tab').forEach((other) => {
+                const active = other === tab;
+                other.classList.toggle('active', active);
+                other.setAttribute('aria-selected', String(active));
+            });
+            renderOrders();
+        });
+    });
+
+    const container = document.getElementById('orders-container');
+    if (container) {
+        container.addEventListener('click', (event) => {
+            const btn = event.target.closest('[data-order-action]');
+            if (!btn) return;
+            event.preventDefault();
+            openConfirm(btn.dataset.orderAction, btn.dataset.id);
+        });
+    }
 
     const modal = document.getElementById('confirm-modal');
+    if (modal) {
+        modal.addEventListener('click', (event) => {
+            if (event.target.closest('[data-confirm-close]')) {
+                event.preventDefault();
+                closeConfirm();
+            }
+        });
+    }
+
+    const confirmBtn = document.getElementById('confirm-action');
+    if (confirmBtn) confirmBtn.addEventListener('click', executePendingAction);
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') closeConfirm();
+    });
+
+    const refresh = document.getElementById('refresh-orders');
+    if (refresh) {
+        refresh.addEventListener('click', () => {
+            const icon = document.getElementById('refresh-icon');
+            if (icon) icon.classList.add('animate-spin');
+            subscribeOrders();
+            setTimeout(() => {
+                if (icon) icon.classList.remove('animate-spin');
+                showToast('Orders refreshed', 'success');
+            }, 700);
+        });
+    }
+
+    const exportBtn = document.getElementById('export-csv');
+    if (exportBtn) exportBtn.addEventListener('click', exportCsv);
+}
+
+/* ------------------------------------------------------------------ */
+/* Confirm + update                                                    */
+/* ------------------------------------------------------------------ */
+
+function openConfirm(action, orderId) {
+    const order = allOrders.find((o) => o.id === orderId);
+    if (!order) return;
+
+    pendingAction = { action, orderId };
+
     const icon = document.getElementById('confirm-icon');
-    const title = document.getElementById('confirm-title');
-    const message = document.getElementById('confirm-message');
     const actionBtn = document.getElementById('confirm-action');
 
     if (action === 'deliver') {
-        icon.className = 'w-16 h-16 mx-auto mb-4 bg-success/10 rounded-full flex items-center justify-center';
-        icon.innerHTML = '<svg class="w-8 h-8 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>';
-        title.textContent = 'Mark as Delivered?';
-        message.textContent = 'This will mark the order as completed and add to your revenue.';
-        actionBtn.className = 'flex-1 py-3 bg-success text-white rounded-xl font-semibold hover:bg-success/90 transition-colors';
-        actionBtn.textContent = 'Yes, Deliver';
+        if (icon) {
+            icon.className = 'w-16 h-16 mx-auto mb-4 bg-success-light rounded-full flex items-center justify-center';
+            icon.innerHTML =
+                '<svg width="18" height="18" class="w-8 h-8 text-success-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>';
+        }
+        setText('confirm-title', 'Mark as delivered?');
+        setText('confirm-message', order.code + ' for ' + order.customer.name + ' will be counted in your revenue.');
+        if (actionBtn) {
+            actionBtn.className = 'btn flex-1 !bg-success !text-white hover:!brightness-95';
+            actionBtn.textContent = 'Yes, delivered';
+        }
     } else {
-        icon.className = 'w-16 h-16 mx-auto mb-4 bg-error/10 rounded-full flex items-center justify-center';
-        icon.innerHTML = '<svg class="w-8 h-8 text-error" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>';
-        title.textContent = 'Cancel Order?';
-        message.textContent = 'This action cannot be undone. The order will be marked as cancelled.';
-        actionBtn.className = 'flex-1 py-3 bg-error text-white rounded-xl font-semibold hover:bg-error/90 transition-colors';
-        actionBtn.textContent = 'Yes, Cancel';
+        if (icon) {
+            icon.className = 'w-16 h-16 mx-auto mb-4 bg-error-light rounded-full flex items-center justify-center';
+            icon.innerHTML =
+                '<svg width="18" height="18" class="w-8 h-8 text-error-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>';
+        }
+        setText('confirm-title', 'Cancel this order?');
+        setText('confirm-message', order.code + ' for ' + order.customer.name + ' will be marked as cancelled.');
+        if (actionBtn) {
+            actionBtn.className = 'btn flex-1 !bg-error !text-white hover:!brightness-95';
+            actionBtn.textContent = 'Yes, cancel';
+        }
     }
 
-    actionBtn.onclick = executePendingAction;
-
-    modal.classList.remove('opacity-0', 'invisible');
-    modal.querySelector('.relative').classList.remove('scale-95');
-    modal.querySelector('.relative').classList.add('scale-100');
-};
-
-window.closeConfirmModal = function() {
     const modal = document.getElementById('confirm-modal');
-    modal.classList.add('opacity-0', 'invisible');
-    modal.querySelector('.relative').classList.add('scale-95');
-    modal.querySelector('.relative').classList.remove('scale-100');
-    pendingAction = null;
-};
-
-async function executePendingAction() {
-    if (!pendingAction) return;
-
-    const { action, orderId } = pendingAction;
-
-    try {
-        const orderRef = doc(db, "orders", orderId);
-        await updateDoc(orderRef, {
-            status: action === 'deliver' ? 'Delivered' : 'Cancelled'
-        });
-
-        showToast(`Order ${action === 'deliver' ? 'delivered' : 'cancelled'} successfully!`, 'success');
-        closeConfirmModal();
-
-    } catch (error) {
-        console.error("Error updating order:", error);
-        showToast('Failed to update order', 'error');
+    if (modal) {
+        modal.classList.add('active');
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('no-scroll');
+        if (actionBtn) {
+            setTimeout(() => {
+                try { actionBtn.focus({ preventScroll: true }); } catch (err) { /* ignore */ }
+            }, 80);
+        }
     }
 }
 
-// ========================================
-// SIDEBAR & UI
-// ========================================
-window.toggleSidebar = function() {
-    document.getElementById('sidebar').classList.toggle('open');
-    document.getElementById('sidebar-overlay').classList.toggle('open');
-};
+function closeConfirm() {
+    const modal = document.getElementById('confirm-modal');
+    if (!modal) return;
+    modal.classList.remove('active');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('no-scroll');
+    pendingAction = null;
+}
 
-window.refreshOrders = function() {
-    const icon = document.getElementById('refresh-icon');
-    icon.classList.add('animate-spin');
+async function executePendingAction() {
+    if (!pendingAction) return;
+    const { action, orderId } = pendingAction;
+    const btn = document.getElementById('confirm-action');
+    const originalLabel = btn ? btn.textContent : '';
 
-    setTimeout(() => {
-        icon.classList.remove('animate-spin');
-        showToast('Orders refreshed!', 'success');
-    }, 1000);
-};
+    if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'Saving…';
+    }
 
-// ========================================
-// TOAST
-// ========================================
-window.showToast = function(message, type = 'success') {
-    const container = document.getElementById('toast-container') || createToastContainer();
-    const toast = document.createElement('div');
+    try {
+        await updateDoc(doc(db, 'orders', orderId), {
+            status: action === 'deliver' ? 'Delivered' : 'Cancelled',
+            statusUpdatedAt: new Date().toISOString()
+        });
+        showToast(action === 'deliver' ? 'Order marked as delivered' : 'Order cancelled', 'success');
+        closeConfirm();
+    } catch (error) {
+        console.error('[orders] update failed', error);
+        showToast('Failed to update the order', 'error');
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = originalLabel;
+        }
+    }
+}
 
-    const colors = {
-        success: 'border-l-success bg-success/5',
-        error: 'border-l-error bg-error/5',
-        warning: 'border-l-warning bg-warning/5'
-    };
+/* ------------------------------------------------------------------ */
+/* CSV export                                                          */
+/* ------------------------------------------------------------------ */
 
-    const icons = {
-        success: '<svg class="w-5 h-5 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>',
-        error: '<svg class="w-5 h-5 text-error" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>',
-        warning: '<svg class="w-5 h-5 text-warning" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>'
-    };
+function csvCell(value) {
+    const text = String(value === null || value === undefined ? '' : value);
+    // Prefix formula-like values so spreadsheets never evaluate them.
+    const safe = /^[=+\-@\t\r]/.test(text) ? "'" + text : text;
+    return '"' + safe.replace(/"/g, '""') + '"';
+}
 
-    toast.className = `flex items-center gap-3 px-4 py-3 bg-surface rounded-xl shadow-xl border-l-4 ${colors[type]} animate-slide-in-up`;
-    toast.innerHTML = `
-        ${icons[type]}
-        <span class="text-sm font-medium text-text">${message}</span>
-    `;
+function exportCsv() {
+    const list = visibleOrders();
+    if (!list.length) {
+        showToast('Nothing to export for the current filters', 'warning');
+        return;
+    }
 
-    container.appendChild(toast);
+    const header = [
+        'Order Code', 'Date', 'Status', 'Customer', 'Phone', 'Address', 'Zone',
+        'Items', 'Units', 'Subtotal', 'Delivery', 'Total', 'Notes'
+    ];
 
-    setTimeout(() => {
-        toast.style.opacity = '0';
-        toast.style.transform = 'translateY(10px)';
-        setTimeout(() => toast.remove(), 300);
-    }, 3000);
-};
+    const rows = list.map((order) => [
+        order.code,
+        order.date ? order.date.toISOString() : '',
+        order.status,
+        order.customer.name,
+        order.customer.phone,
+        order.customer.address,
+        order.customer.location,
+        order.items.map((i) => i.name + (i.color ? ' (' + i.color + ')' : '') + ' x' + i.qty).join(' | '),
+        order.itemCount,
+        order.subtotal,
+        order.delivery,
+        order.total,
+        order.notes
+    ]);
 
-function createToastContainer() {
-    const container = document.createElement('div');
-    container.id = 'toast-container';
-    container.className = 'fixed bottom-6 right-6 z-[200] flex flex-col gap-3';
-    document.body.appendChild(container);
-    return container;
+    const csv = [header, ...rows].map((row) => row.map(csvCell).join(',')).join('\r\n');
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    const stamp = new Date().toISOString().slice(0, 10);
+
+    link.href = url;
+    link.download = 'jannat-orders-' + stamp + '.csv';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+    showToast('Exported ' + list.length + ' order' + (list.length === 1 ? '' : 's'), 'success');
+}
+
+/* ------------------------------------------------------------------ */
+/* Helpers                                                             */
+/* ------------------------------------------------------------------ */
+
+function setText(id, value) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value === null || value === undefined ? '' : String(value);
 }

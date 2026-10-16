@@ -1,0 +1,6 @@
+# Development files to exclude from production deployment
+server.js
+issues to work on.txt
+*.rar
+*.zip
+firestore.rules
