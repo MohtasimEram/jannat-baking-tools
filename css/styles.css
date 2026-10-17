@@ -2100,6 +2100,74 @@ body.page-shell>footer {
     background: rgba(255, 255, 255, 0.28);
 }
 
+.lightbox-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 52px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-full);
+    background: rgba(255, 255, 255, 0.16);
+    color: #fff;
+    cursor: pointer;
+    border: 0;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    transition: background var(--transition-fast), transform var(--transition-fast);
+    z-index: 310;
+}
+
+.lightbox-nav:hover {
+    background: rgba(255, 255, 255, 0.32);
+    transform: translateY(-50%) scale(1.08);
+}
+
+.lightbox-prev {
+    left: 1.5rem;
+}
+
+.lightbox-next {
+    right: 1.5rem;
+}
+
+.lightbox-counter {
+    position: absolute;
+    bottom: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 0.35rem 0.9rem;
+    border-radius: var(--radius-full);
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    pointer-events: none;
+    z-index: 310;
+}
+
+@media (max-width: 640px) {
+    .lightbox-nav {
+        width: 42px;
+        height: 42px;
+    }
+    .lightbox-prev {
+        left: 0.5rem;
+    }
+    .lightbox-next {
+        right: 0.5rem;
+    }
+    .lightbox-counter {
+        bottom: 1rem;
+        font-size: 0.78rem;
+    }
+}
+
 /* Quantity stepper */
 .qty-stepper {
     display: inline-flex;
@@ -2600,9 +2668,21 @@ body.page-shell>footer {
     max-width: 500px;
     width: 100%;
     max-height: 90vh;
+    max-height: calc(100dvh - 2rem);
+    display: flex;
+    flex-direction: column;
     overflow: hidden;
     transform: scale(0.95);
     transition: transform var(--transition-base);
+}
+
+.modal-content > form,
+.modal-content form {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
 }
 
 .modal-overlay.active .modal-content {
@@ -2615,12 +2695,15 @@ body.page-shell>footer {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    flex-shrink: 0;
 }
 
 .modal-body {
     padding: var(--space-lg);
     overflow-y: auto;
-    max-height: calc(90vh - 140px);
+    flex: 1 1 auto;
+    min-height: 0;
+    -webkit-overflow-scrolling: touch;
 }
 
 .modal-footer {
@@ -2628,6 +2711,30 @@ body.page-shell>footer {
     border-top: 1px solid var(--color-border);
     display: flex;
     gap: var(--space-md);
+    flex-shrink: 0;
+    background: var(--color-surface);
+}
+
+@media (max-width: 640px) {
+    .modal-overlay {
+        padding: 0.5rem;
+    }
+    .modal-content {
+        max-height: calc(100dvh - 1rem);
+        border-radius: var(--radius-lg);
+    }
+    .modal-header {
+        padding: 0.875rem 1rem;
+    }
+    .modal-body {
+        padding: 1rem;
+    }
+    .modal-footer {
+        padding: 0.75rem 1rem;
+    }
+    .modal-footer .btn {
+        min-height: 44px;
+    }
 }
 
 /* ============================== FEATURES ============================== */
@@ -3611,8 +3718,27 @@ body.page-shell>footer {
     position: sticky;
     top: 0;
     height: 100vh;
-    overflow-y: auto;
+    height: 100dvh;
+    max-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
     width: 262px;
+}
+
+.sidebar nav {
+    overflow-y: auto;
+    flex: 1 1 auto;
+    min-height: 0;
+    -webkit-overflow-scrolling: touch;
+}
+
+.sidebar-footer {
+    flex-shrink: 0;
+    padding: 1rem;
+    padding-bottom: max(1rem, env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid var(--color-border);
+    background: var(--color-surface);
 }
 
 .sidebar .nav-item {
@@ -3664,6 +3790,10 @@ body.page-shell>footer {
         position: fixed;
         left: 0;
         top: 0;
+        bottom: 0;
+        height: 100%;
+        height: 100dvh;
+        max-height: 100dvh;
         z-index: 50;
         transform: translateX(-100%);
         transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -4116,6 +4246,23 @@ body.page-shell>footer {
         border-radius: 0;
         box-shadow: none;
         transform: translateY(100%);
+    }
+
+    .jb-chat-panel.open {
+        transform: none;
+    }
+
+    .jb-chat-panel.keyboard-active {
+        transition: none !important;
+    }
+
+    .jb-chat-panel.keyboard-active .jb-chat-foot,
+    .jb-chat-panel.keyboard-active .jb-chat-chips {
+        display: none;
+    }
+
+    .jb-chat-form {
+        padding-bottom: max(0.5rem, env(safe-area-inset-bottom, 0px));
     }
 
     .jb-chat-head {

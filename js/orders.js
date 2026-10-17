@@ -263,8 +263,8 @@ function orderCardHTML(order) {
 <article class="order-card">
     <div class="flex flex-col lg:flex-row lg:items-start gap-4">
         <div class="flex-1 min-w-0">
-            <div class="flex flex-wrap items-start justify-between gap-3 mb-4">
-                <div class="min-w-0">
+            <div class="flex items-start justify-between gap-3 mb-4">
+                <div class="flex-1 min-w-0">
                     <div class="flex items-center gap-2 flex-wrap mb-1">
                         <span class="font-mono text-xs font-bold text-text-muted">${escapeHtml(order.code)}</span>
                         <span class="${meta.cls} inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold">

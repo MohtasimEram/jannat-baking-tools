@@ -204,6 +204,26 @@ function build() {
         if (chip) send(chip.dataset.chip);
     });
 
+    inputEl.addEventListener('focus', () => {
+        if (window.innerWidth <= 768) {
+            panel.classList.add('keyboard-active');
+            setTimeout(() => {
+                syncWithVisualViewport();
+                inputEl.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+                if (listEl) listEl.scrollTop = listEl.scrollHeight;
+            }, 120);
+        }
+    });
+
+    inputEl.addEventListener('blur', () => {
+        setTimeout(() => {
+            if (document.activeElement !== inputEl) {
+                panel.classList.remove('keyboard-active');
+                syncWithVisualViewport();
+            }
+        }, 120);
+    });
+
     // Open when something on the page asks for it: <a data-open-chat>
     document.addEventListener('click', (event) => {
         if (event.target.closest('[data-open-chat]')) {
@@ -211,6 +231,33 @@ function build() {
             openChat();
         }
     });
+}
+
+function syncWithVisualViewport() {
+    if (!panel || !isOpen) return;
+    if (window.innerWidth > 768) {
+        panel.style.height = '';
+        panel.style.top = '';
+        panel.style.bottom = '';
+        panel.classList.remove('keyboard-active');
+        return;
+    }
+
+    if (window.visualViewport) {
+        const vv = window.visualViewport;
+        const vHeight = vv.height;
+        const vTop = vv.offsetTop || 0;
+        const isKeyboard = (window.innerHeight - vHeight) > 120 || document.activeElement === inputEl;
+
+        panel.classList.toggle('keyboard-active', isKeyboard);
+        panel.style.height = `${vHeight}px`;
+        panel.style.top = `${vTop}px`;
+        panel.style.bottom = 'auto';
+
+        if (listEl) {
+            listEl.scrollTop = listEl.scrollHeight;
+        }
+    }
 }
 
 function addBubble(role, content, extraClass) {
@@ -254,6 +301,14 @@ function openChat() {
     launcher.setAttribute('aria-expanded', 'true');
     document.body.classList.add('jb-chat-open');
     listEl.scrollTop = listEl.scrollHeight;
+
+    if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', syncWithVisualViewport);
+        window.visualViewport.addEventListener('scroll', syncWithVisualViewport);
+    }
+    window.addEventListener('resize', syncWithVisualViewport);
+    syncWithVisualViewport();
+
     setTimeout(() => {
         try { inputEl.focus({ preventScroll: true }); } catch (err) { /* ignore */ }
     }, 120);
@@ -266,6 +321,17 @@ function closeChat() {
     launcher.classList.remove('is-open');
     launcher.setAttribute('aria-expanded', 'false');
     document.body.classList.remove('jb-chat-open');
+
+    if (window.visualViewport) {
+        window.visualViewport.removeEventListener('resize', syncWithVisualViewport);
+        window.visualViewport.removeEventListener('scroll', syncWithVisualViewport);
+    }
+    window.removeEventListener('resize', syncWithVisualViewport);
+    panel.style.height = '';
+    panel.style.top = '';
+    panel.style.bottom = '';
+    panel.classList.remove('keyboard-active');
+
     setTimeout(() => {
         if (!isOpen) panel.hidden = true;
     }, 220);
